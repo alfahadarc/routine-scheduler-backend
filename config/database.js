@@ -3,7 +3,6 @@ dotenv.config()
 import pkg from 'pg';
 const { Pool } = pkg;
 
-console.log(process.env.CONNECTION_URL);
 const pool = new Pool({
     connectionString: process.env.CONNECTION_URL,
     ssl: {

@@ -7,17 +7,7 @@ import { connect } from './config/database.js'
 const app = express()
 const port = 3000
 
-
-connect().then(
-  (client) => {
-    console.log(client);
-  }
-).catch(
-  (error) => {
-    console.log(error)
-  }
-)
-
+import './repository/user.js'
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
