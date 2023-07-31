@@ -4,7 +4,7 @@ const adminRouter = express.Router();
 
 // const { authorize, verifyToken } = require("../middleware/authJWT");
 // const Role = require("../middleware/role");
-import {authenticate} from "./adminController.js"
+import {authenticate, register, updateEmail} from "./adminController.js"
 // const {check,validationResult}=require('express-validator');
 // const validationHandler=require('../middleware/validationHandler');
 
@@ -18,6 +18,8 @@ import {authenticate} from "./adminController.js"
 //     , authController.authenticate); //login
 
 adminRouter.post("/login",authenticate)
+adminRouter.post("/register",register)
+adminRouter.put("/email",updateEmail)
 
 
 
