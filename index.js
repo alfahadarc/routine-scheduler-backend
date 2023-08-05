@@ -9,7 +9,6 @@ import errorHandler from './config/error-handle.js'
 const app = express()
 const port = 8000
 
-import './repository/user.js'
 app.use(express.json());
 
 app.use('/v1/api', baseRouter)

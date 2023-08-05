@@ -4,19 +4,17 @@ import { connect } from '../../config/database.js'
 export async function getAll() {
 
     const query = 'SELECT * FROM rooms';
-    try {
-        const client = await connect()
-        const results = await client.query(query)
 
-        if (results.rows.length <= 0) {
-            throw new Error("Table is empty");
-        } else {
-            client.release();
-            return results.rows;
-        }
-    } catch (err) {
-        console.error(err)
+    const client = await connect()
+    const results = await client.query(query)
+
+    if (results.rows.length <= 0) {
+        throw new Error("Table is empty");
+    } else {
+        client.release();
+        return results.rows;
     }
+
 
 }
 
@@ -28,7 +26,7 @@ export async function saveRoom(rooms) {
 
     const query = 'INSERT INTO rooms (room, type) VALUES ($1, $2)';
     const values = [room, type]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -38,9 +36,6 @@ export async function saveRoom(rooms) {
             client.release();
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
@@ -58,7 +53,7 @@ export async function updateRoom(rooms) {
   WHERE room = $1
   `
     const values = [room, type]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -68,9 +63,6 @@ export async function updateRoom(rooms) {
             client.release();
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
@@ -82,7 +74,7 @@ export async function removeRoom(room) {
     WHERE room = $1
   `
     const values = [room]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -92,8 +84,5 @@ export async function removeRoom(room) {
             client.release();
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
