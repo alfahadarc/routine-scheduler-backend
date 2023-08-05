@@ -7,7 +7,7 @@ import { connect } from './config/database.js'
 import errorHandler from './config/error-handle.js'
 
 const app = express()
-const port = 3000
+const port = 8000
 
 import './repository/user.js'
 app.use(express.json());
