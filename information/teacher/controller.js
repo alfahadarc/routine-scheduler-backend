@@ -1,17 +1,15 @@
 
 import { getAll, removeTeacher, saveTeacher, updateTeacher,findByInitial } from "./repository.js";
 
+
 export async function getAllTeacher(req, res, next) {
     try {
         const teachers = await getAll();
         console.log(teachers)
         res.status(200).json(teachers);
-
     } catch(err) {
         console.error(err);
-
     }
-
 }
 
 export async function getTeacher(req,res,next){
