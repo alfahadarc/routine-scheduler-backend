@@ -11,7 +11,7 @@ const port = 3000
 import './repository/user.js'
 app.use(express.json());
 
-app.use('/api', baseRouter)
+app.use('/v1/api', baseRouter)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
