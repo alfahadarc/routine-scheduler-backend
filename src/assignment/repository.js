@@ -18,7 +18,7 @@ export async function getTemplate(key) {
 }
 export async function getAllTeacherMail() {
 
-    const query = 'SELECT  email FROM teachers'
+    const query = 'SELECT initial, email FROM teachers'
 
     const client = await connect()
     const results = await client.query(query)
