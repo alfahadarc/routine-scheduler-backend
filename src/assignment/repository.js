@@ -49,7 +49,11 @@ export async function createForm(id, initial,type){
 }
 
 export async function getTheoryPreferencesStatus(){
-    const query = 'SELECT * FROM forms'
+    const query = `
+    SELECT response, teachers.initial, teachers.name, teachers.email
+    FROM forms
+    INNER JOIN teachers ON forms.initial = teachers.initial
+    `;
 
     const client = await connect()
     const results = await client.query(query)

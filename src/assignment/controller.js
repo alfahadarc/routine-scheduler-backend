@@ -55,17 +55,18 @@ export async function getCurrStatus(req, res, next) {
   try {
     const rows = await getTheoryPreferencesStatus()
     console.log(rows.length)
-
+    let result = {}
     if (rows.length == 0) {
-      const result = {status: 0}
-    }
-    let hasNullResponse = []
-    for (const row of rows) {
-      if (row.response === null) {
-        hasNullResponse.push(row)
+      result = { status: 0 }
+    } else {
+      let hasNullResponse = []
+      for (const row of rows) {
+        if (row.response === null) {
+          hasNullResponse.push(row)
+        }
       }
+      result = hasNullResponse.length > 0 ? { status: 1, values: hasNullResponse } : { status: 2 };
     }
-    const result = hasNullResponse.length > 0 ? { status: 1, values: hasNullResponse } : { status: 2 };
     res.status(200).json(result)
 
   } catch (err) {
