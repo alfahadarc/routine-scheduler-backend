@@ -11,6 +11,7 @@ export async function getAll() {
         if (results.rows.length <= 0) {
             throw new Error("Table is empty");
         } else {
+            client.release()
             return results.rows;
         }
 
@@ -33,6 +34,7 @@ export async function saveSection(sections) {
         if (results.rows.length <= 0) {
             throw new Error("Table is empty");
         } else {
+            client.release()
             return results.rows;
         }
 
@@ -63,6 +65,7 @@ export async function updateSection(sections) {
         if (results.rows.length <= 0) {
             throw new Error("successful");
         } else {
+            client.release()
             return results.rows;
         }
 
@@ -84,6 +87,7 @@ export async function removeSection(batch,section) {
         if (results.rows.length <= 0) {
             throw new Error("successful");
         } else {
+            client.release()
             return results.rows;
         }
 

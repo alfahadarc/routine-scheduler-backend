@@ -30,6 +30,7 @@ export async function findByInitial(initial) {
     if (results.rows.length <= 0) {
       throw new Error("No teacher with this initial");
     } else {
+      client.release()
       return results.rows;
     }
 }

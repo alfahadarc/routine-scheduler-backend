@@ -33,6 +33,7 @@ export async function getAll() {
         if (course_list.length <= 0) {
             throw new Error("Table is empty");
         } else {
+            client.release()
             return course_list;
         }
     } catch {

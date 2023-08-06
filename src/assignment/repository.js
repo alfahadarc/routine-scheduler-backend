@@ -53,6 +53,7 @@ export async function getTheoryPreferencesStatus(){
 
     const client = await connect()
     const results = await client.query(query)
+    client.release()
 
-    console.log(results.rowCount)
+    return results.rows
 }
