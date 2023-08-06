@@ -1,6 +1,6 @@
 import { transporter } from "../../config/mail.js";
 import { v4 as uuidv4 } from 'uuid';
-import { getTemplate, getAllTeacherMail, createForm, getTheoryPreferencesStatus } from "./repository.js";
+import { getTemplate, getAllTeacherMail, createForm, getTheoryPreferencesStatus ,finalize } from "./repository.js";
 
 async function sendMail(email, template, token) {
   var url = process.env.URL || "localhost:3000"
@@ -70,6 +70,17 @@ export async function getCurrStatus(req, res, next) {
     res.status(200).json(result)
 
   } catch (err) {
+    next(err)
+  }
+}
+
+export async function finalizeTheoryPreference(req,res,next){
+
+  try{
+    const rowAffected = await finalize()
+
+
+  }catch(err){
     next(err)
   }
 }
