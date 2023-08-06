@@ -1,11 +1,14 @@
 
-import express from 'express.js'
+import express from 'express'
 
 const router = express.Router();
 
-import { sendTheoryPrefMail } from './controller.js';
+import { sendTheoryPrefMail,getCurrStatus } from './controller.js';
 
 router.get("/theory/initiate",sendTheoryPrefMail)
+router.get("/theory/status",getCurrStatus)
+
+
 
 
 export default router;

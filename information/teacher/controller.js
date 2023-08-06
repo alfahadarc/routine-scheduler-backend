@@ -5,7 +5,6 @@ import { getAll, removeTeacher, saveTeacher, updateTeacher,findByInitial } from 
 export async function getAllTeacher(req, res, next) {
     try {
         const teachers = await getAll();
-        console.log(teachers)
         res.status(200).json(teachers);
     } catch(err) {
         console.error(err);
@@ -15,8 +14,7 @@ export async function getAllTeacher(req, res, next) {
 export async function getTeacher(req,res,next){
     const initial = req.params['initial']
     try{
-        const teacher = await findByInitial(initial)
-        console.log(teacher)
+        const teacher = await findByInitial(initial);
         res.status(200).json(teacher);
 
     } catch(err) {
