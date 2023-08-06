@@ -78,6 +78,7 @@ export async function finalizeTheoryPreference(req,res,next){
 
   try{
     const rowAffected = await finalize()
+    res.status(200).json({msg:"Finilizing Done"})
 
 
   }catch(err){
