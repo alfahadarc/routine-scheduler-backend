@@ -4,7 +4,7 @@ import { connect } from '../../config/database.js'
 export async function getAll() {
 
     const query = 'SELECT * FROM sections';
-    try {
+
         const client = await connect()
         const results = await client.query(query)
 
@@ -13,9 +13,6 @@ export async function getAll() {
         } else {
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
@@ -29,7 +26,7 @@ export async function saveSection(sections) {
 
     const query = 'INSERT INTO sections (batch, section,type,room,session) VALUES ($1, $2, $3, $4, $5)';
     const values = [batch, section, type, room, session]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -38,9 +35,6 @@ export async function saveSection(sections) {
         } else {
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
@@ -62,7 +56,7 @@ export async function updateSection(sections) {
     section = $2
   `
     const values = [batch, section, type, room, session]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -71,9 +65,6 @@ export async function updateSection(sections) {
         } else {
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
 
@@ -86,7 +77,7 @@ export async function removeSection(batch,section) {
     section = $2
   `
     const values = [batch, section]
-    try {
+
         const client = await connect()
         const results = await client.query(query, values)
 
@@ -95,8 +86,5 @@ export async function removeSection(batch,section) {
         } else {
             return results.rows;
         }
-    } catch (err) {
-        console.error(err)
-    }
 
 }
