@@ -1,75 +1,51 @@
 import { connect } from '../../config/database.js'
 
-export function findAdminDB(username) {
-  return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM admin WHERE username = $1';
+export async function findAdminDB(username) {
+  const query = 'SELECT * FROM admin WHERE username = $1';
+  const values = [username]
 
-    connect()
-      .then((client) => {
-        client.query(query, [username], (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            if (results.rows.length <= 0) {
-              reject(new Error("No user found"));
-            } else {
-              resolve(results.rows[0]); // Return the first found admin
-            }
-          }
-        });
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  const client = await connect()
+  const results = await client.query(query, values)
+
+  if (results.rows.length <= 0) {
+    throw new Error("Table is empty");
+  } else {
+    client.release();
+    return results.rows;
+  }
+
 }
 
-export function registerAdminDB(username, hash, email) {
-  return new Promise((resolve, reject) => {
-    const query = 'INSERT INTO admin (username, password, email) VALUES ($1, $2, $3)';
-    const values = [username, hash, email];
-    connect()
-      .then((client) => {
-        client.query(query, values, (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            if (results.rowCount != 1) {
-              reject(new Error("Insert failed!"));
-            } else {
-              resolve(results.rowCount); 
-            }
-          }
-        });
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+export async function registerAdminDB(username, hash, email) {
+  const query = 'INSERT INTO admin (username, password, email) VALUES ($1, $2, $3)';
+  const values = [username, hash, email];
+
+  const client = await connect()
+  const results = await client.query(query, values)
+
+  if (results.rowCount <= 0) {
+    throw new Error("Error");
+  } else {
+    client.release();
+    return results.rows;
+  }
+
 }
 
-export function updateEmailDB(email, username){
-  return new Promise((resolve, reject) => {
-    const query = 'UPDATE admin SET email = $1 WHERE username = $2';
-    const values = [email, username];
-    connect()
-      .then((client) => {
-        client.query(query, values, (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            if (results.rowCount != 1) {
-              reject(new Error("Update failed!"));
-            } else {
-              resolve(results.rowCount); 
-            }
-          }
-        });
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+export async function updateEmailDB(email, username) {
+  const query = 'UPDATE admin SET email = $1 WHERE username = $2';
+  const values = [email, username];
+
+  const client = await connect()
+  const results = await client.query(query, values)
+
+  if (results.rowCount <= 0) {
+    throw new Error("Error");
+  } else {
+    client.release();
+    return results.rows;
+  }
+  
 }
 
 export async function adminExistsEmail(email) {
