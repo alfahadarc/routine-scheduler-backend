@@ -4,7 +4,7 @@ import { connect } from '../../config/database.js'
 
 export async function getAll() {
 
-  try {
+
     const query = 'SELECT * FROM teachers';
     const client = await connect()
     const results = await client.query(query)
@@ -12,11 +12,9 @@ export async function getAll() {
     if (results.rows.length <= 0) {
       throw new Error("Table is empty");
     } else {
+      client.release()
       return results.rows;
     }
-  } catch {
-    console.error()
-  }
 
 }
 
