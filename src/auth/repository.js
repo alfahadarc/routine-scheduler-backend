@@ -11,7 +11,7 @@ export async function findAdminDB(username) {
     throw new Error("Table is empty");
   } else {
     client.release();
-    return results.rows;
+    return results.rows[0];
   }
 
 }
