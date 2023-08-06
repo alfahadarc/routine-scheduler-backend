@@ -1,25 +1,22 @@
 import { transporter } from "../../config/mail.js";
 import { v4 as uuidv4 } from 'uuid';
-import { getTemplate, getAllTeacherMail,createForm , getTheoryPreferencesStatus} from "./repository.js";
+import { getTemplate, getAllTeacherMail, createForm, getTheoryPreferencesStatus } from "./repository.js";
 
 
 
 async function sendMail(email, template, token) {
   var url = process.env.URL || "localhost:3000"
   url = url + "/form/theory-pref/" + token
-  const msg = " <h1>Please fill up this form</h1>  <a href=' " +url+ " ' > " + url + "</a>"
+  const msg = " <h1>Please fill up this form</h1>  <a href=' " + url + " ' > " + url + "</a>"
   const info = await transporter.sendMail({
-    from: 'BUET CSE Routine Team', 
-    to: email, 
+    from: 'BUET CSE Routine Team',
+    to: email,
     subject: "Theory Preferences Form",
-    text: template, 
-    html: msg, 
+    text: template,
+    html: msg,
   });
   return info;
 }
-
-// form - > key[teacher_initial_preferences/schedule], type[theory/sessional], response
-
 
 
 export async function sendTheoryPrefMail(req, res, next) {
@@ -34,7 +31,7 @@ export async function sendTheoryPrefMail(req, res, next) {
       const data = await getAllTeacherMail()
       for (var i = 0; i <= 2; i++) {
         const id = uuidv4()
-        const row = await createForm(id,data[i].initial,"theory-pref")
+        const row = await createForm(id, data[i].initial, "theory-pref")
         var info = sendMail(data[i].email, msgBody[0].value, id)
         console.log(info.messageId)
       }
@@ -54,13 +51,26 @@ export async function sendTheoryPrefMail(req, res, next) {
 
 }
 
-export async function getCurrStatus(req,res,next){
+export async function getCurrStatus(req, res, next) {
 
 
-  try{
+  try {
     const rows = await getTheoryPreferencesStatus()
-    
-  }catch(err){
+    console.log(rows.length)
+
+    if (rows.length == 0) {
+      const result = {status: 0}
+    }
+    let hasNullResponse = []
+    for (const row of rows) {
+      if (row.response === null) {
+        hasNullResponse.push(row)
+      }
+    }
+    const result = hasNullResponse.length > 0 ? { status: 1, values: hasNullResponse } : { status: 2 };
+    res.status(200).json(result)
+
+  } catch (err) {
     next(err)
   }
 }
