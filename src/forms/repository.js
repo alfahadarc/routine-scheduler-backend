@@ -73,13 +73,13 @@ export async function getForms() {
 
 export async function updateForm(uuid, response) {
 
-    const query = `
+    var query = `
     SELECT response FROM forms
     WHERE id = $1
   `
-    const values = [uuid]
-    const client = await connect()
-    const results = await client.query(query, values)
+    var values = [uuid]
+    var client = await connect()
+    var results = await client.query(query, values)
     
     if(results.rows[0].response != null){
         throw new Error("Can not submit twice");
