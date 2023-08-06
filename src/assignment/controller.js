@@ -1,27 +1,25 @@
-import { transporter } from "../config/mail.js";
-import jwt from "jsonwebtoken";
-import { getTemplate,getAllTeacherMail } from "./repository.js";
-const secret = process.env.SECRET || "default-secret";
+import { transporter } from "../../config/mail.js";
+import { v4 as uuidv4 } from 'uuid';
+import { getTemplate, getAllTeacherMail } from "./repository.js";
 
-async function sendMail(email, template, token){
-    const info = await transporter.sendMail({
-      from: '"Fred Foo 👻" <foo@example.com>', // sender address
-      to: email, // list of receivers
-      subject: "Hello ✔", // Subject line
-      text: template, // plain text body
-      html: <h1>please fill up this form <a>token</a></h1> , // html body
-    });
-    return info;
+
+async function sendMail(email, template, token) {
+  var url = process.env.URL || "localhost:3000"
+  url = url + "/form/theory-pref/" + token
+  const msg = "<h1>please fill up this form</h1>  <a>" + url + "</a>"
+  const info = await transporter.sendMail({
+    from: 'BUET CSE Routine Team', 
+    to: email, 
+    subject: "Theory Preferences Form",
+    text: template, 
+    html: msg, 
+  });
+  return info;
 }
 
 // form - > key[teacher_initial_preferences/schedule], type[theory/sessional], response
 
-function createToken(initial, type){
-  const token = jwt.sign({ initial: initial, type:type }, secret, {
-    expiresIn: "3 days",
-  });
-  return token;
-}
+
 
 export async function sendTheoryPrefMail(req, res, next) {
 
@@ -33,20 +31,22 @@ export async function sendTheoryPrefMail(req, res, next) {
 
       //get all mail
       const data = await getAllTeacherMail()
-      data.forEach((e)=>{
-        const token = createToken(e.initial,"Preferences")
-        var info = sendMail(e.email,msgBody[0].value, token)
+      for (var i = 0; i <= 2; i++) {
+        var info = sendMail(data[i].email, msgBody[0].value, uuidv4())
         console.log(info.messageId)
-        
-      })
-      res.status(200).json({ msg: data })
-      
+      }
+      // data.forEach((e)=>{
+      //   var info = sendMail(e.email,msgBody[0].value,uuidv4() )
+      //   console.log(info.messageId)
+      // })
+      res.status(200).json({ msg: "successfully send" })
+
     } else {
-      next({msg:"no body found"})
+      next({ msg: "no body found" })
     }
 
   } catch (err) {
     next(err)
   }
-  
+
 }
