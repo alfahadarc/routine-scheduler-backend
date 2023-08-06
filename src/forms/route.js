@@ -1,5 +1,7 @@
 
 import express from 'express'
+import {getForm,getAllForm,editForm} from "./controller.js"
+
 
 const router = express.Router();
 
@@ -7,9 +9,9 @@ const router = express.Router();
 
 // theory/pref/{form_id} get
 
-router.get("/",(req,res,next)=>{
-    res.send("hello")
-})
+router.get("/",getAllForm)
+router.get("/:uuid",getForm)
+router.put("/:uuid",editForm)
 
 // theory/pref/{form_id} postMessage
 // theory/schedule/{form_id} get

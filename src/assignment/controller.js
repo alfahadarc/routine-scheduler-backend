@@ -1,12 +1,13 @@
 import { transporter } from "../../config/mail.js";
 import { v4 as uuidv4 } from 'uuid';
-import { getTemplate, getAllTeacherMail } from "./repository.js";
+import { getTemplate, getAllTeacherMail,createForm , getTheoryPreferencesStatus} from "./repository.js";
+
 
 
 async function sendMail(email, template, token) {
   var url = process.env.URL || "localhost:3000"
   url = url + "/form/theory-pref/" + token
-  const msg = "<h1>please fill up this form</h1>  <a>" + url + "</a>"
+  const msg = " <h1>Please fill up this form</h1>  <a href=' " +url+ " ' > " + url + "</a>"
   const info = await transporter.sendMail({
     from: 'BUET CSE Routine Team', 
     to: email, 
@@ -29,10 +30,12 @@ export async function sendTheoryPrefMail(req, res, next) {
 
     if (msgBody[0].key !== null && msgBody[0].key !== undefined) {
 
-      //get all mail
+      //get all mail and initial
       const data = await getAllTeacherMail()
       for (var i = 0; i <= 2; i++) {
-        var info = sendMail(data[i].email, msgBody[0].value, uuidv4())
+        const id = uuidv4()
+        const row = await createForm(id,data[i].initial,"theory-pref")
+        var info = sendMail(data[i].email, msgBody[0].value, id)
         console.log(info.messageId)
       }
       // data.forEach((e)=>{
@@ -49,4 +52,15 @@ export async function sendTheoryPrefMail(req, res, next) {
     next(err)
   }
 
+}
+
+export async function getCurrStatus(req,res,next){
+
+
+  try{
+    const rows = await getTheoryPreferencesStatus()
+    
+  }catch(err){
+    next(err)
+  }
 }
