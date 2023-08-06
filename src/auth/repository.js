@@ -1,4 +1,4 @@
-import { connect } from '../config/database.js'
+import { connect } from '../../config/database.js'
 
 export function findAdminDB(username) {
   return new Promise((resolve, reject) => {
@@ -72,3 +72,10 @@ export function updateEmailDB(email, username){
   });
 }
 
+export async function adminExistsEmail(email) {
+  const query = 'SELECT * FROM admin WHERE email = $1';
+  const values = [email];
+  const client = await connect();
+  const result = await client.query(query, values);
+  return result.rows.length > 0;
+}

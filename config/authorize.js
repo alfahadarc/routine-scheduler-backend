@@ -22,7 +22,7 @@ export function verifyToken(req, res, next) {
     return next();
 };
 
-export function  authorize ()  {
+export function authorize ()  {
     return (req, res, next) => {
         const token =
             req.body.token || req.query.token || req.headers["x-access-token"];
