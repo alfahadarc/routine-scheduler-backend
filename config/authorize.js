@@ -25,7 +25,7 @@ export function verifyToken(req, res, next) {
 export function authorize()  {
     return (req, res, next) => {
         const token =
-            req.body.token || req.query.token || req.headers["x-access-token"] || req.headers['Authorization'] && req.headers['Authorization'].split(' ')[1];
+            req.body.token || req.query.token || req.headers["x-access-token"] || req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
 
         if (!token) {
             return res.status(401).json({message:"You must log in"});
