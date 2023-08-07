@@ -62,6 +62,18 @@ export async function getTheoryPreferencesStatus() {
     return results.rows
 }
 
+export async function isFinalized() {
+    const query = `SELECT value FROM configs WHERE "key" = 'THEORY_PREFERENCES_COMPLETE'`;
+    const client = await connect()
+    const results = await client.query(query)
+    client.release()
+
+    if (results.rows.length <= 0 || results.rows[0].value === 0)
+        return false
+    else
+        return true
+}
+
 export async function finalize() {
     const query = `
     UPDATE public.configs
