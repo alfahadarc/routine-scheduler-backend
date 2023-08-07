@@ -44,7 +44,7 @@ export async function getFormByUUID(uuid) {
     const courses = await getCourses(results.rows[0].type)
     console.log(results.rows)
     const data = {
-        teachers: results.rows[0],
+        teacher: results.rows[0],
         courses: courses
     }
 

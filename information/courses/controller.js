@@ -20,6 +20,8 @@ export async function addCourse(req, res, next) {
     const type = req.body.type
     const session = req.body.session
     const class_per_week = req.body.class_per_week
+    const batch = req.body.batch
+    const sections = req.body.sections
     
     const Course = {
         course_id: course_id,
@@ -27,6 +29,8 @@ export async function addCourse(req, res, next) {
         type: type,
         session: session,
         class_per_week: class_per_week,
+        batch:batch,
+        sections:sections,
         
     }
 
@@ -43,19 +47,25 @@ export async function addCourse(req, res, next) {
 
 
 export async function editCourse(req, res, next) {
-    const course_id = req.params['course_id']
+    const course_id_old = req.params['course_id']
     
+    const course_id = req.body.course_id
     const name = req.body.name
     const type = req.body.type
     const session = req.body.session
     const class_per_week = req.body.class_per_week
+    const batch = req.body.batch
+    const sections = req.body.sections
     
     const Course = {
+        course_id_old:course_id_old,
         course_id: course_id,
         name: name,
         type: type,
         session: session,
         class_per_week: class_per_week,
+        batch:batch,
+        sections:sections,
         
     }
     

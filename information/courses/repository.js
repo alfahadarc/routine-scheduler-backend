@@ -28,6 +28,7 @@ export async function getAll() {
                     matchingCourse.sections = [];
                 }
                 matchingCourse.sections.push(sectionInfo.section);
+                matchingCourse.batch = sectionInfo.batch
             }
         }
         if (course_list.length <= 0) {
@@ -50,18 +51,30 @@ export async function saveCourse(Course) {
     const type = Course.type
     const session = Course.session
     const class_per_week = Course.class_per_week
+    const batch = Course.batch
+    const sections = Course.sections
 
-    const query = 'INSERT INTO courses (course_id, name, type, session, class_per_week) VALUES ($1, $2, $3, $4, $5 )';
-    const values = [course_id, name, type, session, class_per_week];
+    var query = 'INSERT INTO courses (course_id, name, type, session, class_per_week) VALUES ($1, $2, $3, $4, $5 )';
+    var values = [course_id, name, type, session, class_per_week];
 
-    const client = await connect()
-    const results = await client.query(query, values)
+    var client = await connect()
+    var results = await client.query(query, values)
+
+    for (section in sections) {
+        query = 'INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )';
+        values = [course_id, session, batch, section];
+        results = await client.query(query, values)
+        if (results.rowCount <= 0) {
+            throw new Error("Insertion Failed");
+        }
+    }
+
 
     if (results.rowCount <= 0) {
         throw new Error("Insertion Failed");
     } else {
         client.release();
-        return results.rowCount; // Return the first found admin
+        return results.rowCount; 
     }
 }
 
@@ -69,28 +82,49 @@ export async function saveCourse(Course) {
 
 export async function updateCourse(Course) {
 
+    const course_id_old = Course.course_id_old
     const course_id = Course.course_id
     const name = Course.name
     const type = Course.type
     const session = Course.session
     const class_per_week = Course.class_per_week
+    const batch = Course.batch
+    const sections = Course.sections
 
-    const query = `
-  UPDATE courses
-  SET
-    name = $2,
-    type = $3,
-    session = $4,
-    class_per_week = $5
-  WHERE course_id = $1;
+    var query = `
+  DELETE FROM courses_sections
+  WHERE course_id = $1 AND session=$2;
     `;
-    const values = [course_id, name, type, session, class_per_week];
+    var values = [course_id_old, session];
 
-    const client = await connect()
-    const results = await client.query(query, values)
+    var client = await connect()
+    var results = await client.query(query, values)
+
+    query = `UPDATE courses SET 
+    course_id=$1,
+    name=$2, 
+    type=$3, 
+    session=$4, 
+    class_per_week=$5
+    WHERE
+    course_id=$6
+     `;
+    values = [course_id, name, type, session, class_per_week, course_id_old];
+
+    client = await connect()
+    results = await client.query(query, values)
+
+    for (section in sections) {
+        query = 'INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )';
+        values = [course_id, session, batch, section];
+        results = await client.query(query, values)
+        if (results.rowCount <= 0) {
+            throw new Error("Insertion Failed");
+        }
+    }
 
     if (results.rowCount <= 0) {
-        throw new Error("Error updating data in the database: " + error.message);
+        throw new Error("Error updating data in the database");
     } else {
         client.release();
         return results.rowCount; // Return the first found admin
@@ -98,18 +132,18 @@ export async function updateCourse(Course) {
 }
 
 export async function removeCourse(course_id) {
-  const query = `
+    const query = `
       DELETE FROM courses
       WHERE course_id = $1
     `;
-  const values = [course_id];
-  const client = await connect()
-  const results = await client.query(query, values)
+    const values = [course_id];
+    const client = await connect()
+    const results = await client.query(query, values)
 
-  if (results.rowCount <= 0) {
-    throw new Error("Error deleting data in the database: " + error.message);
-  } else {
-    client.release();
-    return results.rowCount; // Return the first found admin
-  }
+    if (results.rowCount <= 0) {
+        throw new Error("Error deleting data in the database: " + error.message);
+    } else {
+        client.release();
+        return results.rowCount; // Return the first found admin
+    }
 }
