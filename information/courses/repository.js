@@ -60,7 +60,8 @@ export async function saveCourse(Course) {
     var client = await connect()
     var results = await client.query(query, values)
 
-    for (section in sections) {
+    console.log(sections)
+    for (let section of sections) {
         query = 'INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )';
         values = [course_id, session, batch, section];
         results = await client.query(query, values)
@@ -114,7 +115,7 @@ export async function updateCourse(Course) {
     client = await connect()
     results = await client.query(query, values)
 
-    for (section in sections) {
+    for (let section of sections) {
         query = 'INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )';
         values = [course_id, session, batch, section];
         results = await client.query(query, values)
