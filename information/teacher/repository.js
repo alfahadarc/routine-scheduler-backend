@@ -88,7 +88,7 @@ export async function updateTeacher(teacher) {
   const results = await client.query(query, values)
 
   if (results.rowCount <= 0) {
-    throw new Error("Error updating data in the database: " + error.message);
+    throw new Error("Error updating data in the database");
   } else {
     client.release();
     return results.rowCount; // Return the first found admin
