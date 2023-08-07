@@ -64,14 +64,15 @@ export async function getTheoryPreferencesStatus() {
 
 export async function finalize() {
     const query = `
-    SELECT value
-    FROM public.configs
-    WHERE "key" = 'THEORY_PREFERENCES_COMPLETE';
+    UPDATE public.configs
+    SET value = 1
+    WHERE "key" = 'THEORY_PREFERENCES_COMPLETE'
     `;
 
     const client = await connect()
     const results = await client.query(query)
-    client.release()
 
-    return results.rows
+
+    client.release()
+    return results.rowCount
 }
