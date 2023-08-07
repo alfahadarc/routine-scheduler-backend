@@ -68,7 +68,7 @@ export async function isFinalized() {
     const results = await client.query(query)
     client.release()
 
-    if (results.rows.length <= 0 || results.rows[0].value === 0)
+    if (results.rows.length <= 0 || results.rows[0].value === '0')
         return false
     else
         return true
@@ -77,7 +77,7 @@ export async function isFinalized() {
 export async function finalize() {
     const query = `
     UPDATE public.configs
-    SET value = 1
+    SET value = '1'
     WHERE "key" = 'THEORY_PREFERENCES_COMPLETE'
     `;
 
