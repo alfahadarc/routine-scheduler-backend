@@ -31,9 +31,9 @@ export async function saveSection(sections) {
         const client = await connect()
         const results = await client.query(query, values)
 
-        if (results.rows.length <= 0) {
-            throw new Error("Table is empty");
-        } else {
+        if (results.rowCount <= 0) {
+            throw new Error("Insertion Failed");
+        }  else {
             client.release()
             return results.rows;
         }
@@ -84,8 +84,8 @@ export async function removeSection(batch,section) {
         const client = await connect()
         const results = await client.query(query, values)
 
-        if (results.rows.length <= 0) {
-            throw new Error("successful");
+        if (results.rowCount <= 0) {
+            throw new Error("not found");
         } else {
             client.release()
             return results.rows;

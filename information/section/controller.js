@@ -16,7 +16,7 @@ export async function addSection(req, res, next) {
         batch: req.body.batch,
         section: req.body.section,
         type: req.body.type,
-        room: req.body.room,
+        room: req.body.room === "000" ? null : req.body.room,
         session: req.body.session
     }
 
@@ -39,7 +39,7 @@ export async function editSection(req, res, next) {
         batch: batch,
         section: section,
         type: req.body.type,
-        room: req.body.room,
+        room: req.body.room === "000" ? null : req.body.room,
         session: req.body.session
     }
 
