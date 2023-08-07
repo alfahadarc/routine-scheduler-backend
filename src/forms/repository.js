@@ -82,6 +82,7 @@ export async function updateForm(uuid, response) {
     var results = await client.query(query, values)
     
     if(results.rows[0].response != null){
+        client.release();
         throw new Error("Can not submit twice");
     }
 
@@ -94,14 +95,14 @@ export async function updateForm(uuid, response) {
 
     values = [uuid, response]
 
-    client = await connect()
     results = await client.query(query, values)
+    client.release();
     console.log(results)
 
     if (results.rowCount <= 0) {
         throw new Error("Error");
     } else {
-        client.release();
+       
         return results.rowCount;
     }
 }
