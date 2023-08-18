@@ -61,7 +61,7 @@ export async function getCurrStatus(req, res, next) {
       res.status(200).json({ status: 3 });
     } else {
       const rows = await getTheoryPreferencesStatus();
-      console.log(rows.length);
+      //console.log(rows.length);
       let result = {};
       if (rows.length == 0) {
         result = { status: 0 };
@@ -72,11 +72,19 @@ export async function getCurrStatus(req, res, next) {
             hasNullResponse.push(row);
           }
         }
+        let otherResponse =[]
+        for (const row of rows) {
+          if (row.response !== null) {
+            otherResponse.push(row);
+          }
+        }
+
         result =
           hasNullResponse.length > 0
-            ? { status: 1, values: hasNullResponse }
-            : { status: 2 };
+            ? { status: 1, values: hasNullResponse, submitted: otherResponse  }
+            : { status: 2, submitted: otherResponse };
       }
+      //console.log(result)
       res.status(200).json(result);
     }
   } catch (err) {

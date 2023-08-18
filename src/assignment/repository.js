@@ -58,8 +58,17 @@ export async function getTheoryPreferencesStatus() {
     const client = await connect()
     const results = await client.query(query)
     client.release()
+    const cleanResult = results.rows.map((row) => {
+        //console.log(row)
+        return {
+            response: row.response && JSON.parse(row.response) ,
+            initial: row.initial,
+            name: row.name,
+            email: row.email
+        }
+    })
 
-    return results.rows
+    return cleanResult
 }
 
 export async function isFinalized() {

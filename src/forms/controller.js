@@ -28,7 +28,9 @@ export async function getAllForm(req, res, next) {
 export async function editForm(req, res, next) {
 
     const uuid = req.params['uuid']
-    const response = req.body.preferences
+    let response = req.body.preferences
+    //make response a string
+    response = JSON.stringify(response)
 
     try {
         const form = await updateForm(uuid,response);
