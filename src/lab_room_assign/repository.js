@@ -18,7 +18,10 @@ export const getAllRoom = async () => {
 
 export const getAllCourse = async () => {
 
-    const query = 'SELECT * FROM courses WHERE course_id LIKE \'CSE%\' and type = 1';
+    const query = 'SELECT cs.course_id, cs.section, cs.batch , c.name\
+                        FROM courses_sections cs\
+                        JOIN courses c ON cs.course_id = c.course_id\
+                        WHERE cs.course_id LIKE \'CSE%\' and c.type=1';
     const client = await connect()
     const results = await client.query(query)
 
