@@ -18,7 +18,7 @@ export const getAllRoom = async () => {
 
 export const getAllCourse = async () => {
 
-    const query = 'SELECT * FROM courses WHERE type = 1';
+    const query = 'SELECT * FROM courses WHERE course_id LIKE \'CSE%\' and type = 1';
     const client = await connect()
     const results = await client.query(query)
 
