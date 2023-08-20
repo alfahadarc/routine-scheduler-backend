@@ -55,11 +55,11 @@ export async function getScheduleAPI(req, res, next) {
 }
 
 async function sendTheorySchedNextMail(batch) {
-  const teachers = await nextInSeniority(batch);
-  for (const teacher of teachers) {
-    const id = teacher.id
+  const teachers = await nextInSeniority();
+  for (const teacher of teachers.filter((t) => t.batch === batch)) {
+    const id = teacher.id;
     await sendMail(teacher.email, `Theory Schedule Form: ${id}` , id);
-    console.log(teacher)
+    // console.log(teacher);
   }
 }
 
@@ -85,11 +85,21 @@ export async function getCurrStatus(req, res, next) {
     if (result.length === 0) {
       res.status(200).json({ status: 0 });
     } else {
+      const mailed = await nextInSeniority();
       const nullResponse = result.filter((row) => row.response === null);
       const otherResponse = result.filter((row) => row.response !== null);
+      const mailedObj = mailed.reduce((acc, row) => {
+        acc[row.initial] = row;
+        return acc;
+      }, {});
+      const mailedResponse = result.filter((row) => row.response === null && mailedObj[row.initial] !== undefined).map((row) => {
+        row.batch = mailedObj[row.initial].batch;
+        row.course_id = mailedObj[row.initial].course_id;
+        return row;
+      });
       res.status(200).json({
         status: nullResponse.length === 0 ? 2 : 1,
-        values: nullResponse,
+        values: mailedResponse,
         submitted: otherResponse,
       });
     }

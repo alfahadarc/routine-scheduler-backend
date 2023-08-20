@@ -55,14 +55,13 @@ export async function getTheoryScheduleTeachers() {
   return results;
 }
 
-export async function nextInSeniority(batch) {
+export async function nextInSeniority() {
   const query = `
-    select id, t.initial, t."name", t.email, t.surname from (select distinct id, initial, course_id from forms f join teacher_assignment ta using (initial) 
-    join courses_sections cs using (course_id)
-    where f."type" = 'theory-sched' and response is null and batch = $1) tb natural join teachers t order by seniority_rank limit 1`
-  const values = [batch]
+  select distinct on (batch) id, course_id, batch, t.initial, t."name", t.email, t.surname from forms f join teacher_assignment ta using (initial) 
+  join courses_sections cs using (course_id) natural join teachers t 
+  where f."type" = 'theory-sched' and response is null order by batch, seniority_rank`
   const client = await connect();
-  const results = (await client.query(query, values)).rows;
+  const results = (await client.query(query)).rows;
   client.release();
   return results;
 }
