@@ -47,6 +47,7 @@ export async function getTheoryPreferencesStatus() {
     SELECT response, teachers.initial, teachers.name, teachers.email
     FROM forms
     INNER JOIN teachers ON forms.initial = teachers.initial
+    WHERE type = 'theory-pref'
     `;
 
   const client = await connect();
@@ -66,12 +67,12 @@ export async function getTheoryPreferencesStatus() {
 }
 
 export async function isFinalized() {
-  const query = `SELECT value FROM configs WHERE "key" = 'THEORY_PREFERENCES_COMPLETE'`;
+  const query = `SELECT COUNT(*) FROM teacher_assignment WHERE "session" = (SELECT value FROM configs WHERE key='CURRENT_SESSION')`;
   const client = await connect();
   const results = await client.query(query);
   client.release();
 
-  if (results.rows.length <= 0 || results.rows[0].value === "0") return false;
+  if (results.rows.length <= 0 || results.rows[0].value === 0) return false;
   else return true;
 }
 
@@ -95,7 +96,7 @@ export async function finalize() {
         `;
     const teacherResponseResults = (await client.query(teacherResponses)).rows;
 
-    const noOfTeachers = `select course_id, "type", COUNT(*) as no_of_teachers from courses_sections cs natural join courses course where "session" = ((SELECT value FROM configs WHERE key='CURRENT_SESSION')) group by course_id, "session", "type" `;
+    const noOfTeachers = `select course_id, "type", COUNT(*) as no_of_teachers from courses_sections cs natural join courses course where "session" = (SELECT value FROM configs WHERE key='CURRENT_SESSION') group by course_id, "session", "type" `;
     const noOfTeachersResults = (await client.query(noOfTeachers)).rows
       .filter((row) => row.type === 0)
       .reduce((acc, row) => {
