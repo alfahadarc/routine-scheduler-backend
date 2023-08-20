@@ -6,12 +6,12 @@ const secret = process.env.SECRET;
 
 export function verifyToken(req, res, next) {
     const token =
-        req.body.token || req.query.token || req.headers["x-access-token"];
+        req.body.token || req.query.token || req.headers["x-access-token"] || req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
 
     if (!token) {
         return res
             .status(401)
-            .json(message.error("A token is required for authentication"));
+            .json({message: "A token is required for authentication"});
     }
     try {
         const decoded = jwt.verify(token, secret);

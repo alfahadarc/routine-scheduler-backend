@@ -12,12 +12,12 @@ sectionRouter.post("/",validate([
     body('batch').isNumeric().notEmpty(),
     body('section').notEmpty(),
     body('type').isNumeric().notEmpty(),
-    body('room').notEmpty(),
+    body('room').optional().notEmpty(),
     body('session').notEmpty(),
 ]),addSection)
 sectionRouter.put("/:batch/:section",validate([
     body('type').isNumeric().notEmpty(),
-    body('room').notEmpty(),
+    body('room').optional().notEmpty(),
     body('session').notEmpty(),
 ]),editSection)
 
