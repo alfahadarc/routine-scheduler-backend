@@ -6,6 +6,7 @@ import roomRouter from "./information/room/route.js";
 import courseRouter from "./information/courses/route.js";
 import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
+import labRoomAssignRouter from "./src/lab_room_assign/route.js"
 
 import { authorize } from "./config/authorize.js";
 
@@ -17,6 +18,8 @@ router.use("/section", authorize(), sectionRouter);
 router.use("/room", authorize(), roomRouter);
 router.use("/assign", authorize(), assignRouter);
 router.use("/course", authorize(), courseRouter);
+router.use("/labroomassign", labRoomAssignRouter);
+
 
 router.use("/forms", formsRouter);
 
