@@ -5,7 +5,7 @@ import { connect } from '../../config/database.js'
 export async function getAll() {
 
     try {
-        const query = 'SELECT * FROM courses';
+        const query = `SELECT * FROM courses WHERE course_id != 'CT'`;
         const client = await connect()
         const courses = await client.query(query)
 
@@ -60,14 +60,16 @@ export async function saveCourse(Course) {
     var client = await connect()
     var results = await client.query(query, values)
 
-    console.log(sections)
-    for (let section of sections) {
-        query = 'INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )';
+    if (batch !== "") {
+      for (let section of sections) {
+        query =
+          "INSERT INTO courses_sections (course_id, session, batch, section) VALUES ($1, $2, $3, $4 )";
         values = [course_id, session, batch, section];
-        results = await client.query(query, values)
+        results = await client.query(query, values);
         if (results.rowCount <= 0) {
             next(new Error("Insertion Failed"))
         }
+      }
     }
 
 
