@@ -1,5 +1,5 @@
 
-import { getAll,saveCourse,updateCourse,removeCourse } from "./repository.js";
+import { getAll,saveCourse,updateCourse,removeCourse,getAllLab } from "./repository.js";
 
 
 export async function getAllCourse(req, res, next) {
@@ -8,7 +8,7 @@ export async function getAllCourse(req, res, next) {
         console.log(Courses)
         res.status(200).json(Courses);
     } catch(err) {
-        console.error(err);
+        next(err)
     }
 }
 
@@ -39,7 +39,6 @@ export async function addCourse(req, res, next) {
         res.status(200).json({message: "Successfully Saved"});
 
     } catch(err) {
-        console.error(err);
         next(err)
     }
 
@@ -75,7 +74,6 @@ export async function editCourse(req, res, next) {
         res.status(200).json({ Course:Course })
 
     }catch(err) {
-        console.error(err);
         next(err)
     }
 
@@ -88,6 +86,16 @@ export async function deleteCourse(req, res, next) {
         res.status(200).json({ row:rowCount })
 
     }catch(err) {
-        console.error(err);
+        next(err)
+    }
+}
+
+export async function getLabCourses(req, res, next) {
+    try {
+        const Courses = await getAllLab();
+        console.log(Courses)
+        res.status(200).json(Courses);
+    } catch(err) {
+        next(err)
     }
 }

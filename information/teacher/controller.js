@@ -7,7 +7,7 @@ export async function getAllTeacher(req, res, next) {
         const teachers = await getAll();
         res.status(200).json(teachers);
     } catch(err) {
-        console.error(err);
+        next(err)
     }
 }
 
@@ -18,8 +18,7 @@ export async function getTeacher(req,res,next){
         res.status(200).json(teacher);
 
     } catch(err) {
-        console.error(err);
-        res.status(200).json({msg:err.message});
+        next(err)
 
     }
 }
@@ -52,7 +51,7 @@ export async function addTeacher(req, res, next) {
         res.status(200).json({message: "success"});
 
     } catch(err) {
-        console.error(err);
+        next(err)
     }
 
 }
@@ -86,7 +85,7 @@ export async function editTeacher(req, res, next) {
         res.status(200).json({ teacher:teacher })
 
     }catch(err) {
-        console.error(err);
+        next(err)
     }
 
 }
@@ -98,6 +97,6 @@ export async function deleteTeacher(req, res, next) {
         res.status(200).json({ row:rowCount })
 
     }catch(err) {
-        console.error(err);
+        next(err)
     }
 }

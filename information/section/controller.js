@@ -6,7 +6,7 @@ export async function getAllSection(req, res, next) {
         res.status(200).json(sections)
 
     } catch (err) {
-        console.error(err)
+        next(err)
     }
 }
 
@@ -25,7 +25,7 @@ export async function addSection(req, res, next) {
 
         res.status(200).json({ msg: "successful" })
     } catch (err) {
-        console.error(err)
+        next(err)
     }
 
 }
@@ -47,7 +47,7 @@ export async function editSection(req, res, next) {
         const row = await updateSection(sections)
         res.status(200).json({ msg: "successful" })
     } catch (err) {
-        console.error(err)
+        next(err)
     }
 
 }
@@ -60,7 +60,7 @@ export async function deleteSection(req, res, next) {
         const row = await removeSection(batch,section)
         res.status(200).json({ msg: "successful" })
     } catch (err) {
-        console.error(err)
+        next(err)
     }
 
 

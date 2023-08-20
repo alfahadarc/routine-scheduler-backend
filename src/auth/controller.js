@@ -23,8 +23,7 @@ export async function authenticate(req, res, next) {
       res.status(401).json({ error: "username or password is incorrect!" });
     }
   } catch (error) {
-    console.error(error);
-    res.status(401).json({ error: "username or password is incorrect" });
+    res.status(401).json({ error: "username or password is incorrect!" });
   }
 }
 
@@ -52,8 +51,7 @@ export async function register(req, res, next) {
       email: admin.email,
     });
   } catch (error) {
-    console.error();
-    res.status(404).json({ error: error.message });
+    next(error);
   }
 }
 
@@ -70,7 +68,6 @@ export async function updateEmail(req, res, next) {
         .json({ message: "update successfull!", username: username });
     }
   } catch (error) {
-    console.error();
-    res.status(404).json({ error: error.message });
+    next(error);
   }
 }

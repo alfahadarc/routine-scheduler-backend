@@ -17,7 +17,7 @@ export function verifyToken(req, res, next) {
         const decoded = jwt.verify(token, secret);
         req.user = decoded;
     } catch (err) {
-        return res.status(401).json(message.error("Invalid token"));
+        return res.status(401).json(new Error("Invalid token"));
     }
     return next();
 };
@@ -36,7 +36,7 @@ export function authorize()  {
             next();
 
         } catch (err) {
-            return res.status(401).json(message.error("Invalid Token"));
+            return res.status(401).json(new Error("Invalid Token"));
         }
     };
 };
