@@ -79,13 +79,7 @@ export async function isFinalized() {
 export async function finalize() {
   const client = await connect();
   try {
-    const query = `
-        UPDATE public.configs
-        SET value = '1'
-        WHERE "key" = 'THEORY_PREFERENCES_COMPLETE'
-        `;
     await client.query("BEGIN");
-    const results = await client.query(query);
 
     const teacherResponses = `
         select f.initial, f.response 
@@ -133,4 +127,13 @@ export async function finalize() {
     client.release();
   }
   return true;
+}
+
+export async function getTheoryAssignment() {
+  const query = `select c.course_id, c."name", (select to_json(array_agg(row_to_json(t))) "teachers" from (select t.initial, t.name from teacher_assignment ta natural join teachers t where ta.course_id = c.course_id and ta.session = c."session") t ) from courses c where c.course_id like 'CSE%'`
+
+  const client = await connect();
+  const result = (await client.query(query)).rows;
+  client.release();
+  return result;
 }

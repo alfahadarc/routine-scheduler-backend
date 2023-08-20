@@ -7,6 +7,7 @@ import {
   getTheoryPreferencesStatus,
   finalize,
   isFinalized,
+  getTheoryAssignment,
 } from "./repository.js";
 
 async function sendMail(email, template, token) {
@@ -58,7 +59,7 @@ export async function sendTheoryPrefMail(req, res, next) {
 export async function getCurrStatus(req, res, next) {
   try {
     if (await isFinalized()) {
-      res.status(200).json({ status: 3 });
+      res.status(200).json({ status: 3, assignment: await getTheoryAssignment() });
     } else {
       const rows = await getTheoryPreferencesStatus();
       //console.log(rows.length);
