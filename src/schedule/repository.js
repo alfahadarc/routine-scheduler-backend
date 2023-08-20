@@ -30,3 +30,39 @@ export async function setSchedule(batch, section, course, schedule) {
     client.release();
   }
 }
+
+export async function getTheoryScheduleForms() {
+  const query = `
+    SELECT response, teachers.initial, teachers.name, teachers.email
+    FROM forms
+    INNER JOIN teachers ON forms.initial = teachers.initial
+    WHERE type = 'theory-sched'
+    `;
+
+    const client = await connect();
+    const results = (await client.query(query)).rows;
+    client.release();
+    return results;
+}
+
+export async function getTheoryScheduleTeachers() {
+  const query = `
+  select DISTINCT initial, cs.batch  from teacher_assignment ta join courses_sections cs using (course_id, "session")
+  `
+  const client = await connect();
+  const results = (await client.query(query)).rows;
+  client.release();
+  return results;
+}
+
+export async function nextInSeniority(batch) {
+  const query = `
+    select id, t.initial, t."name", t.email, t.surname from (select distinct id, initial, course_id from forms f join teacher_assignment ta using (initial) 
+    join courses_sections cs using (course_id)
+    where f."type" = 'theory-sched' and response is null and batch = $1) tb natural join teachers t order by seniority_rank limit 1`
+  const values = [batch]
+  const client = await connect();
+  const results = (await client.query(query, values)).rows;
+  client.release();
+  return results;
+}

@@ -58,35 +58,25 @@ export async function sendTheoryPrefMail(req, res, next) {
 
 export async function getCurrStatus(req, res, next) {
   try {
-    if (await isFinalized()) {
-      res.status(200).json({ status: 3, assignment: await getTheoryAssignment() });
+    const result = await getTheoryPreferencesStatus();
+    if (result.length === 0) {
+      res.status(200).json({ status: 0 });
     } else {
-      const rows = await getTheoryPreferencesStatus();
-      //console.log(rows.length);
-      let result = {};
-      if (rows.length == 0) {
-        result = { status: 0 };
-      } else {
-        let hasNullResponse = [];
-        for (const row of rows) {
-          if (row.response === null) {
-            hasNullResponse.push(row);
-          }
-        }
-        let otherResponse =[]
-        for (const row of rows) {
-          if (row.response !== null) {
-            otherResponse.push(row);
-          }
-        }
-
-        result =
-          hasNullResponse.length > 0
-            ? { status: 1, values: hasNullResponse, submitted: otherResponse  }
-            : { status: 2, values: hasNullResponse, submitted: otherResponse };
-      }
-      //console.log(result)
-      res.status(200).json(result);
+      const nullResponse = result.filter((row) => row.response === null);
+      const otherResponse = result.filter((row) => row.response !== null);
+      if (await isFinalized())
+        res.status(200).json({
+          status: 3,
+          values: nullResponse,
+          submitted: otherResponse,
+          assignment: await getTheoryAssignment(),
+        });
+      else
+        res.status(200).json({
+          status: nullResponse.length === 0 ? 2 : 1,
+          values: nullResponse,
+          submitted: otherResponse,
+        });
     }
   } catch (err) {
     next(err);

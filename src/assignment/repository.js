@@ -71,8 +71,7 @@ export async function isFinalized() {
   const client = await connect();
   const results = await client.query(query);
   client.release();
-
-  if (results.rows.length <= 0 || results.rows[0].value === 0) return false;
+  if (results.rows.length <= 0 || results.rows[0].count === "0") return false;
   else return true;
 }
 
@@ -94,16 +93,15 @@ export async function finalize() {
     const noOfTeachersResults = (await client.query(noOfTeachers)).rows
       .filter((row) => row.type === 0)
       .reduce((acc, row) => {
-        acc[row.course_id] = row.no_of_teachers;
+        acc[row.course_id] = parseInt(row.no_of_teachers);
         return acc;
       }, {});
-
     for (const row of teacherResponseResults) {
       const courses = JSON.parse(row.response);
       const initial = row.initial;
       for (const course_id of courses) {
         if (
-          !noOfTeachersResults[course_id] ||
+          noOfTeachersResults[course_id] === undefined ||
           noOfTeachersResults[course_id] > 0
         ) {
           const query = `
@@ -112,7 +110,8 @@ export async function finalize() {
                     `;
           const values = [initial, course_id];
           await client.query(query, values);
-          if (noOfTeachersResults[course_id]) noOfTeachersResults[course_id]--;
+          if (noOfTeachersResults[course_id] !== undefined)
+            noOfTeachersResults[course_id]--;
           break;
         }
       }
@@ -130,7 +129,7 @@ export async function finalize() {
 }
 
 export async function getTheoryAssignment() {
-  const query = `select c.course_id, c."name", (select to_json(array_agg(row_to_json(t))) "teachers" from (select t.initial, t.name from teacher_assignment ta natural join teachers t where ta.course_id = c.course_id and ta.session = c."session") t ) from courses c where c.course_id like 'CSE%'`
+  const query = `select c.course_id, c."name", (select to_json(array_agg(row_to_json(t))) "teachers" from (select t.initial, t.name from teacher_assignment ta natural join teachers t where ta.course_id = c.course_id and ta.session = c."session") t ) from courses c where c.course_id like 'CSE%'`;
 
   const client = await connect();
   const result = (await client.query(query)).rows;

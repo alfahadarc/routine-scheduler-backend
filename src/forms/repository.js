@@ -41,7 +41,8 @@ export async function getFormByUUID(uuid) {
     const client = await connect()
     const results = await client.query(query, values)
 
-    const courses = await getCourses(results.rows[0].type)
+    let courses = await getCourses(results.rows[0].type)
+    courses = courses.filter((course) => course.course_id.startsWith('CSE'))
     console.log(results.rows)
     const data = {
         teacher: results.rows[0],
