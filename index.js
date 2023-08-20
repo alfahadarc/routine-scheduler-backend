@@ -3,7 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
 
-import router from './router.js';
+import route from './route.js';
 import { connect } from './config/database.js';
 import errorHandler from './config/error-handle.js';
 
@@ -15,7 +15,7 @@ app.use(cors())
 
 app.use(express.json());
 app.use(cors());
-app.use("/v1", router);
+app.use("/v1", route);
 app.use(errorHandler);
 
 app.listen(port, () => {
