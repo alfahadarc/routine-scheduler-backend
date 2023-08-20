@@ -82,7 +82,7 @@ export async function getCurrStatus(req, res, next) {
         result =
           hasNullResponse.length > 0
             ? { status: 1, values: hasNullResponse, submitted: otherResponse  }
-            : { status: 2, submitted: otherResponse };
+            : { status: 2, values: hasNullResponse, submitted: otherResponse };
       }
       //console.log(result)
       res.status(200).json(result);
@@ -94,7 +94,10 @@ export async function getCurrStatus(req, res, next) {
 
 export async function finalizeTheoryPreference(req, res, next) {
   try {
-    const rowAffected = await finalize();
+    const commited = await finalize();
+    if (!commited) {
+      throw new Error("Finalization Failed");
+    }
     res.status(200).json({ msg: "Finilizing Done" });
   } catch (err) {
     next(err);
