@@ -54,7 +54,7 @@ export async function getScheduleAPI(req, res, next) {
   }
 }
 
-async function sendTheorySchedNextMail(batch) {
+export async function sendTheorySchedNextMail(batch) {
   const teachers = await nextInSeniority();
   for (const teacher of teachers.filter((t) => t.batch === batch)) {
     const id = teacher.id;

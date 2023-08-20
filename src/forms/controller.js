@@ -1,13 +1,37 @@
-import { getFormByUUID, getForms,updateForm } from './repository.js'
+import { sendTheorySchedNextMail } from '../schedule/controller.js';
+import { getTheoryPreferenceFormByUUID, getForms,updateForm, getTheoryScheduleFormByUUID, saveTheoryScheduleForm } from './repository.js'
 
-export async function getForm(req, res, next) {
+export async function getTheoryPreferenceForm(req, res, next) {
     const uuid = req.params['uuid']
 
     try {
-        const form = await getFormByUUID(uuid);
+        const form = await getTheoryPreferenceFormByUUID(uuid);
 
         res.status(200).json({ data: form })
 
+    } catch (err) {
+        next(err)
+    }
+}
+
+export async function getTheoryScheduleForm(req, res, next) {
+    const uuid = req.params['uuid']
+    try {
+        const form = await getTheoryScheduleFormByUUID(uuid);
+        res.status(200).json(form)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export async function saveTheoryScheduleFormAPI(req, res, next) { 
+    try {
+        const uuid = req.params['uuid']
+        const response = req.body
+        await updateForm(uuid, JSON.stringify(response), 'theory-sched')
+        const batch = await saveTheoryScheduleForm(uuid, response)
+        await sendTheorySchedNextMail(batch)
+        res.status(200).json({msg:"Successfully Updated"})
     } catch (err) {
         next(err)
     }

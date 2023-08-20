@@ -1,17 +1,23 @@
-
-import express from 'express'
-import {getForm,getAllForm,editForm} from "./controller.js"
-
+import express from "express";
+import {
+  getTheoryPreferenceForm,
+  getAllForm,
+  editForm,
+  getTheoryScheduleForm,
+  saveTheoryScheduleFormAPI,
+} from "./controller.js";
 
 const router = express.Router();
 
-
-
 // theory/pref/{form_id} get
 
-router.get("/",getAllForm)
-router.get("/:uuid",getForm)
-router.put("/:uuid",editForm)
+// TODO: WHY OPEN? TYPE WHERE?
+router.get("/", getAllForm);
+router.get("/:uuid", getTheoryPreferenceForm);
+router.put("/:uuid", editForm);
+
+router.get("/theory-sched/:uuid", getTheoryScheduleForm);
+router.put("/theory-sched/:uuid", saveTheoryScheduleFormAPI);
 
 // theory/pref/{form_id} postMessage
 // theory/schedule/{form_id} get
@@ -19,6 +25,5 @@ router.put("/:uuid",editForm)
 // theory/schedule/{form_id} post
 // sessional/pref/{form_id} get
 // sessional/pref/{form_id} post
-
 
 export default router;
