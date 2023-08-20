@@ -8,6 +8,7 @@ import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
 import scheduleRouter from "./src/schedule/route.js";
 
+
 import { authorize } from "./config/authorize.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.use("/room", authorize(), roomRouter);
 router.use("/assign", authorize(), assignRouter);
 router.use("/course", authorize(), courseRouter);
 router.use("/schedule", authorize(), scheduleRouter);
+
 
 router.use("/forms", formsRouter);
 

@@ -9,7 +9,7 @@ export async function getAll() {
     const results = await client.query(query)
 
     if (results.rows.length <= 0) {
-        throw new Error("Table is empty");
+        next(new Error("Table is empty"));
     } else {
         client.release();
         return results.rows;
@@ -31,7 +31,7 @@ export async function saveRoom(rooms) {
         const results = await client.query(query, values)
 
         if (results.rowCount <= 0) {
-            throw new Error("not saved");
+            next(new Error("Insertion Failed"));
         } else {
             client.release();
             return results.rows;
@@ -58,7 +58,7 @@ export async function updateRoom(rooms) {
         const results = await client.query(query, values)
 
         if (results.rowCount <= 0) {
-            throw new Error("error");
+            next(new Error("Update Failed"));
         } else {
             client.release();
             return results.rows;
@@ -79,10 +79,29 @@ export async function removeRoom(room) {
         const results = await client.query(query, values)
 
         if (results.rowCount <= 0) {
-            throw new Error("error");
+            next(new Error("Delete Failed"));
         } else {
             client.release();
             return results.rows;
         }
 
+}
+
+export async function getLabs(){
+    const query = 'SELECT * FROM rooms WHERE type = 1';
+    
+    const client = await connect()
+    const results = await client.query(query)
+    client.release();
+
+
+    if (results.rows.length <= 0) {
+        next(new Error("Table is empty"));
+    }
+    else {
+        
+        return results.rows;
+    }
+
+    
 }

@@ -32,13 +32,13 @@ export async function getAll() {
             }
         }
         if (course_list.length <= 0) {
-            throw new Error("Table is empty");
+            next(new Error("Table is empty"));
         } else {
             client.release()
             return course_list;
         }
-    } catch {
-        console.error()
+    } catch (err) {
+        next(err)
     }
 
 }
@@ -67,17 +67,17 @@ export async function saveCourse(Course) {
         values = [course_id, session, batch, section];
         results = await client.query(query, values);
         if (results.rowCount <= 0) {
-          throw new Error("Insertion Failed");
+            next(new Error("Insertion Failed"))
         }
       }
     }
 
 
     if (results.rowCount <= 0) {
-        throw new Error("Insertion Failed");
+        next(new Error("Insertion Failed"))
     } else {
         client.release();
-        return results.rowCount; 
+        return results.rowCount;
     }
 }
 
@@ -122,12 +122,12 @@ export async function updateCourse(Course) {
         values = [course_id, session, batch, section];
         results = await client.query(query, values)
         if (results.rowCount <= 0) {
-            throw new Error("Insertion Failed");
+            next(new Error("Insertion Failed"))
         }
     }
 
     if (results.rowCount <= 0) {
-        throw new Error("Error updating data in the database");
+        next(new Error("Update Failed"));
     } else {
         client.release();
         return results.rowCount; // Return the first found admin
@@ -144,9 +144,27 @@ export async function removeCourse(course_id) {
     const results = await client.query(query, values)
 
     if (results.rowCount <= 0) {
-        throw new Error("Error deleting data in the database: " + error.message);
+        next(new Error("Delation Failed"))
     } else {
         client.release();
         return results.rowCount; // Return the first found admin
+    }
+}
+
+export async function getAllLab() {
+
+    const query = 'SELECT cs.course_id, cs.section, cs.batch , c.name, s.level_term \
+    FROM courses_sections cs\
+    JOIN courses c ON cs.course_id = c.course_id\
+    join sections s using (batch, section)\
+    WHERE cs.course_id LIKE \'CSE%\' and c.type=1';
+    const client = await connect()
+    const results = await client.query(query)
+
+    if (results.rows.length <= 0) {
+        throw new Error("Table is empty");
+    } else {
+        client.release();
+        return results.rows;
     }
 }

@@ -50,7 +50,7 @@ export async function getTheoryPreferenceFormByUUID(uuid) {
     }
 
     if (results.rows.length <= 0) {
-        throw new Error("Table is empty");
+        next(new Error("Table is empty"))
     } else {
         client.release();
         return data;
@@ -108,7 +108,7 @@ export async function getForms() {
     const results = await client.query(query)
 
     if (results.rows.length <= 0) {
-        throw new Error("Table is empty");
+        next(new Error("Table is empty"))
     } else {
         client.release();
         return results.rows;
@@ -132,7 +132,7 @@ export async function updateForm(uuid, response, type = 'theory-pref') {
     console.log(results)
 
     if (results.rowCount <= 0) {
-        throw new Error("Error");
+        next(new Error("Update Failed"))
     } else {
         return results.rowCount;
     }

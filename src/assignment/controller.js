@@ -49,7 +49,7 @@ export async function sendTheoryPrefMail(req, res, next) {
       // })
       res.status(200).json({ msg: "successfully send" });
     } else {
-      next({ msg: "no body found" });
+      next(new Error("No template found"));
     }
   } catch (err) {
     next(err);
