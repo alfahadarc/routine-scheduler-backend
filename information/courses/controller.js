@@ -1,11 +1,11 @@
 
-import { getAll,saveCourse,updateCourse,removeCourse,getAllLab } from "./repository.js";
+import { getAll,saveCourse,updateCourse,removeCourse } from "./repository.js";
 
 
 export async function getAllCourse(req, res, next) {
     try {
         const Courses = await getAll();
-        console.log(Courses)
+        // console.log(Courses)
         res.status(200).json(Courses);
     } catch(err) {
         next(err)
@@ -86,16 +86,6 @@ export async function deleteCourse(req, res, next) {
         res.status(200).json({ row:rowCount })
 
     }catch(err) {
-        next(err)
-    }
-}
-
-export async function getLabCourses(req, res, next) {
-    try {
-        const Courses = await getAllLab();
-        console.log(Courses)
-        res.status(200).json(Courses);
-    } catch(err) {
         next(err)
     }
 }

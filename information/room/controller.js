@@ -1,4 +1,4 @@
-import {getAll, removeRoom, saveRoom, updateRoom,getLabs } from "./repository.js"
+import {getAll, removeRoom, saveRoom, updateRoom } from "./repository.js"
 
 
 export async function getAllRoom(req, res, next) {
@@ -62,15 +62,4 @@ export async function deleteRoom(req, res, next) {
         next(err)
     }
 
-}
-
-export async function getLabRooms(req, res, next){
-
-    try{
-        const rooms = await getLabs()
-        res.status(200).json(rooms)
-    }
-    catch(err){
-        next(err)
-    }
 }
