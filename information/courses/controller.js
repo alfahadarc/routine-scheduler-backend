@@ -5,7 +5,6 @@ import { getAll,saveCourse,updateCourse,removeCourse,getAllLab } from "./reposit
 export async function getAllCourse(req, res, next) {
     try {
         const Courses = await getAll();
-        console.log(Courses)
         res.status(200).json(Courses);
     } catch(err) {
         next(err)
