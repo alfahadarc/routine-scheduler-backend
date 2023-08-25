@@ -10,7 +10,7 @@ export async function getAll() {
     const results = await client.query(query)
 
     if (results.rows.length <= 0) {
-      next(new Error("Table is empty"));
+      throw new Error("Table is empty");
     } else {
       client.release()
       return results.rows;
@@ -26,7 +26,7 @@ export async function findByInitial(initial) {
     const client = await connect()
     const results = await client.query(query, values)
     if (results.rows.length <= 0) {
-      next(new Error("No teacher with this initial"));
+      throw new Error("No teacher with this initial");
     } else {
       client.release()
       return results.rows;
@@ -51,7 +51,7 @@ export async function saveTeacher(teacher) {
   const results = await client.query(query, values)
 
   if (results.rowCount <= 0) {
-    next(new Error("Insertion Failed"));
+    throw new Error("Insertion Failed");
   } else {
     client.release();
     return results.rowCount; // Return the first found admin
@@ -88,7 +88,7 @@ export async function updateTeacher(teacher) {
   const results = await client.query(query, values)
 
   if (results.rowCount <= 0) {
-    next(new Error("Update Failed"));
+    throw new Error("Update Failed");
   } else {
     client.release();
     return results.rowCount; // Return the first found admin
@@ -105,7 +105,7 @@ export async function removeTeacher(initial) {
   const results = await client.query(query, values)
 
   if (results.rowCount <= 0) {
-    next(new Error("Error deleting data in the database"));
+    throw new Error("Error deleting data in the database");
   } else {
     client.release();
     return results.rowCount; // Return the first found admin

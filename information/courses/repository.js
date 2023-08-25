@@ -32,13 +32,13 @@ export async function getAll() {
             }
         }
         if (course_list.length <= 0) {
-            next(new Error("Table is empty"));
+            throw new Error("Table is empty");
         } else {
             client.release()
             return course_list;
         }
     } catch (err) {
-        next(err)
+        return err
     }
 
 }
@@ -67,14 +67,14 @@ export async function saveCourse(Course) {
         values = [course_id, session, batch, section];
         results = await client.query(query, values);
         if (results.rowCount <= 0) {
-            next(new Error("Insertion Failed"))
+            throw new Error("Insertion Failed")
         }
       }
     }
 
 
     if (results.rowCount <= 0) {
-        next(new Error("Insertion Failed"))
+        throw new Error("Insertion Failed")
     } else {
         client.release();
         return results.rowCount;
@@ -122,12 +122,12 @@ export async function updateCourse(Course) {
         values = [course_id, session, batch, section];
         results = await client.query(query, values)
         if (results.rowCount <= 0) {
-            next(new Error("Insertion Failed"))
+            throw new Error("Insertion Failed")
         }
     }
 
     if (results.rowCount <= 0) {
-        next(new Error("Update Failed"));
+        throw new Error("Update Failed");
     } else {
         client.release();
         return results.rowCount; // Return the first found admin
@@ -144,7 +144,7 @@ export async function removeCourse(course_id) {
     const results = await client.query(query, values)
 
     if (results.rowCount <= 0) {
-        next(new Error("Delation Failed"))
+        throw new Error("Delation Failed")
     } else {
         client.release();
         return results.rowCount; // Return the first found admin

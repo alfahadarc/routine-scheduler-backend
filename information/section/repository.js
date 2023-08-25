@@ -9,7 +9,7 @@ export async function getAll() {
         const results = await client.query(query)
 
         if (results.rows.length <= 0) {
-            next(new Error("Table is empty"));
+            throw new Error("Table is empty");
         } else {
             client.release()
             return results.rows;
@@ -32,7 +32,7 @@ export async function saveSection(sections) {
         const results = await client.query(query, values)
 
         if (results.rows.length <= 0) {
-            next(new Error("Insertion Failed"));
+            throw new Error("Insertion Failed");
         } else {
             client.release()
             return results.rows;
@@ -63,7 +63,7 @@ export async function updateSection(sections) {
         const results = await client.query(query, values)
 
         if (results.rows.length <= 0) {
-            next(new Error("Update Failed"));
+            throw new Error("Update Failed");
         } else {
             client.release()
             return results.rows;
@@ -85,7 +85,7 @@ export async function removeSection(batch,section) {
         const results = await client.query(query, values)
 
         if (results.rows.length <= 0) {
-            next(new Error("Delete Failed"));
+            throw new Error("Delete Failed");
         } else {
             client.release()
             return results.rows;

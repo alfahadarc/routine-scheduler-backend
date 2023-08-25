@@ -7,7 +7,7 @@ export async function getTemplate(key) {
   const results = await client.query(query, values);
 
     if (results.rows.length <= 0) {
-        next(new Error("Table is empty"))
+       throw new Error("Table is empty")
     } else {
         client.release();
         return results.rows;
@@ -21,7 +21,7 @@ export async function getAllTeacherMail() {
   const results = await client.query(query);
 
     if (results.rows.length <= 0) {
-        next(new Error("Table is empty"))
+        throw new Error("Table is empty")
     } else {
         client.release();
         return results.rows;
@@ -37,7 +37,7 @@ export async function createForm(id, initial, type) {
   const results = await client.query(query, values);
 
     if (results.rowAffected <= 0) {
-        next(new Error("Insertion Failed"))
+        throw new Error("Insertion Failed")
     } else {
         client.release();
         return results.rowAffected;
