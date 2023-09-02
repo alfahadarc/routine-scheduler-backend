@@ -1,32 +1,35 @@
 import { connect } from "../config/database.js";
+import { HttpError } from "../config/error-handle.js";
 
 export async function getTemplate(key) {
   const query = "SELECT * FROM configs WHERE key=$1";
   const values = [key];
   const client = await connect();
-  const results = await client.query(query, values);
 
-    if (results.rows.length <= 0) {
-        next(new Error("Table is empty"))
-    } else {
-        client.release();
-        return results.rows;
-    }
+  try {
+    const results = await client.query(query, values);
 
+    if (results.rows.length <= 0)
+      throw new HttpError(404, "Template not found");
+
+    return results.rows;
+  } finally {
+    client.release();
+  }
 }
 export async function getAllTeacherMail() {
   const query = "SELECT initial, email FROM teachers";
 
   const client = await connect();
-  const results = await client.query(query);
+  try {
+    const results = await client.query(query);
 
-    if (results.rows.length <= 0) {
-        next(new Error("Table is empty"))
-    } else {
-        client.release();
-        return results.rows;
-    }
+    if (results.rows.length <= 0) throw new HttpError(404, "Table is empty");
 
+    return results.rows;
+  } finally {
+    client.release();
+  }
 }
 
 export async function createForm(id, initial, type) {
@@ -34,15 +37,15 @@ export async function createForm(id, initial, type) {
   const values = [id, type, initial];
 
   const client = await connect();
-  const results = await client.query(query, values);
+  try {
+    const results = await client.query(query, values);
 
-    if (results.rowAffected <= 0) {
-        next(new Error("Insertion Failed"))
-    } else {
-        client.release();
-        return results.rowAffected;
-    }
+    if (results.rowCount <= 0) throw new HttpError(400, "Insertion Failed");
 
+    return results.rows;
+  } finally {
+    client.release();
+  }
 }
 
 export async function getTheoryPreferencesStatus() {
@@ -54,19 +57,22 @@ export async function getTheoryPreferencesStatus() {
     `;
 
   const client = await connect();
-  const results = await client.query(query);
-  client.release();
-  const cleanResult = results.rows.map((row) => {
-    //console.log(row)
-    return {
-      response: row.response && JSON.parse(row.response),
-      initial: row.initial,
-      name: row.name,
-      email: row.email,
-    };
-  });
+  try {
+    const results = await client.query(query);
+    const cleanResult = results.rows.map((row) => {
+      //console.log(row)
+      return {
+        response: row.response && JSON.parse(row.response),
+        initial: row.initial,
+        name: row.name,
+        email: row.email,
+      };
+    });
 
-  return cleanResult;
+    return cleanResult;
+  } finally {
+    client.release();
+  }
 }
 
 export async function isFinalized() {

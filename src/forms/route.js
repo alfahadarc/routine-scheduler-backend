@@ -19,11 +19,4 @@ router.put("/:uuid", editForm);
 router.get("/theory-sched/:uuid", getTheoryScheduleForm);
 router.put("/theory-sched/:uuid", saveTheoryScheduleFormAPI);
 
-// theory/pref/{form_id} postMessage
-// theory/schedule/{form_id} get
-
-// theory/schedule/{form_id} post
-// sessional/pref/{form_id} get
-// sessional/pref/{form_id} post
-
 export default router;

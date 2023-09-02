@@ -1,7 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import { adminExistsEmail, findAdminDB as findAdminUsingUsername, registerAdminDB, updateEmailDB } from "./repository.js";
+import {
+  adminExistsEmail,
+  findAdminDB as findAdminUsingUsername,
+  registerAdminDB,
+  updateEmailDB,
+} from "./repository.js";
+import { HttpError } from "../config/error-handle.js";
 
 const secret = process.env.SECRET || "default-secret";
 const saltRounds = 10;
@@ -21,10 +27,10 @@ export async function authenticate(req, res, next) {
 
       res.status(200).json({ message: "Logged in!", user, token });
     } else {
-      res.status(401).json({ error: "username or password is incorrect!" });
+      throw new HttpError(401, "username or password is incorrect!");
     }
   } catch (error) {
-    res.status(401).json({ error: "username or password is incorrect!" });
+    next(error);
   }
 }
 
@@ -34,7 +40,7 @@ export async function forgetPassReq(req, res, next) {
     // TODO: send email with reset link
     res.status(200).json({ message: "Check your email for the reset link!" });
   } else {
-    res.status(404).json({ error: "Email not found!" });
+    throw new HttpError(404, "Email not found!");
   }
 }
 
@@ -45,7 +51,7 @@ export async function register(req, res, next) {
 
   try {
     const hash = await bcrypt.hash(password, saltRounds);
-    const rowsAffected = await registerAdminDB(username, hash, email);
+    await registerAdminDB(username, hash, email);
     res.status(201).json({
       message: "registration successfull!",
       username: admin.username,
@@ -60,14 +66,10 @@ export async function updateEmail(req, res, next) {
   var username = req.username;
   var email = req.body.email;
   try {
-    const rowsAffected = await updateEmailDB(email, username);
-    if (rowsAffected === 0) {
-      res.status(404).json({ message: "username not found!" });
-    } else {
-      res
-        .status(200)
-        .json({ message: "update successfull!", username: username });
-    }
+    await updateEmailDB(email, username);
+    res
+      .status(200)
+      .json({ message: "update successfull!", username: username });
   } catch (error) {
     next(error);
   }

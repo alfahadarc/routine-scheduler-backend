@@ -1,74 +1,71 @@
-import { connect } from '../../config/database.js'
-
-
+import { connect } from "../../config/database.js";
+import { HttpError } from "../../config/error-handle.js";
 
 export async function getAll() {
-
-
-    const query = 'SELECT * FROM teachers';
-    const client = await connect()
-    const results = await client.query(query)
-
-    if (results.rows.length <= 0) {
-      next(new Error("Table is empty"));
-    } else {
-      client.release()
-      return results.rows;
-    }
-
+  const query = "SELECT * FROM teachers";
+  const client = await connect();
+  const results = await client.query(query);
+  client.release();
+  return results.rows;
 }
 
 export async function findByInitial(initial) {
-    const query = 'SELECT * FROM teachers WHERE initial=$1';
-    const values = [initial]
+  const query = "SELECT * FROM teachers WHERE initial=$1";
+  const values = [initial];
 
-    
-    const client = await connect()
-    const results = await client.query(query, values)
-    if (results.rows.length <= 0) {
-      next(new Error("No teacher with this initial"));
-    } else {
-      client.release()
-      return results.rows;
-    }
+  const client = await connect();
+  const results = await client.query(query, values);
+  client.release();
+  if (results.rows.length <= 0) {
+    throw new HttpError(404, "Not Found");
+  } else {
+    return results.rows;
+  }
 }
 
 export async function saveTeacher(teacher) {
+  const initial = teacher.initial;
+  const name = teacher.name;
+  const surname = teacher.surname;
+  const email = teacher.email;
+  const seniority_rank = teacher.seniority_rank;
+  const active = teacher.active;
+  const theory_courses = teacher.theory_courses;
+  const sessional_courses = teacher.sessional_courses;
 
-  const initial = teacher.initial
-  const name = teacher.name
-  const surname = teacher.surname
-  const email = teacher.email
-  const seniority_rank = teacher.seniority_rank
-  const active = teacher.active
-  const theory_courses = teacher.theory_courses
-  const sessional_courses = teacher.sessional_courses
+  const query =
+    "INSERT INTO teachers (initial, name,surname,email,seniority_rank,active,theory_courses,sessional_courses) VALUES ($1, $2, $3,$4,$5,$6,$7,$8 )";
+  const values = [
+    initial,
+    name,
+    surname,
+    email,
+    seniority_rank,
+    active,
+    theory_courses,
+    sessional_courses,
+  ];
 
-  const query = 'INSERT INTO teachers (initial, name,surname,email,seniority_rank,active,theory_courses,sessional_courses) VALUES ($1, $2, $3,$4,$5,$6,$7,$8 )';
-  const values = [initial, name, surname, email, seniority_rank, active, theory_courses, sessional_courses];
-
-  const client = await connect()
-  const results = await client.query(query, values)
+  const client = await connect();
+  const results = await client.query(query, values);
+  client.release();
 
   if (results.rowCount <= 0) {
-    next(new Error("Insertion Failed"));
+    throw new HttpError(400, "Insert Failed");
   } else {
-    client.release();
     return results.rowCount; // Return the first found admin
   }
 }
 
-
-
 export async function updateTeacher(teacher) {
-  const initial = teacher.initial
-  const name = teacher.name
-  const surname = teacher.surname
-  const email = teacher.email
-  const seniority_rank = teacher.seniority_rank
-  const active = teacher.active
-  const theory_courses = teacher.theory_courses
-  const sessional_courses = teacher.sessional_courses
+  const initial = teacher.initial;
+  const name = teacher.name;
+  const surname = teacher.surname;
+  const email = teacher.email;
+  const seniority_rank = teacher.seniority_rank;
+  const active = teacher.active;
+  const theory_courses = teacher.theory_courses;
+  const sessional_courses = teacher.sessional_courses;
 
   const query = `
       UPDATE teachers
@@ -82,15 +79,24 @@ export async function updateTeacher(teacher) {
         sessional_courses = $8
       WHERE initial = $1
     `;
-  const values = [initial, name, surname, email, seniority_rank, active, theory_courses, sessional_courses];
+  const values = [
+    initial,
+    name,
+    surname,
+    email,
+    seniority_rank,
+    active,
+    theory_courses,
+    sessional_courses,
+  ];
 
-  const client = await connect()
-  const results = await client.query(query, values)
+  const client = await connect();
+  const results = await client.query(query, values);
+  client.release();
 
   if (results.rowCount <= 0) {
-    next(new Error("Update Failed"));
+    throw new HttpError(400, "Update Failed");
   } else {
-    client.release();
     return results.rowCount; // Return the first found admin
   }
 }
@@ -101,13 +107,13 @@ export async function removeTeacher(initial) {
       WHERE initial = $1
     `;
   const values = [initial];
-  const client = await connect()
-  const results = await client.query(query, values)
+  const client = await connect();
+  const results = await client.query(query, values);
+  client.release();
 
   if (results.rowCount <= 0) {
-    next(new Error("Error deleting data in the database"));
+    throw new HttpError(404, "Delete Failed");
   } else {
-    client.release();
     return results.rowCount; // Return the first found admin
   }
 }

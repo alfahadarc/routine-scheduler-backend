@@ -1,5 +1,5 @@
 import express from "express";
-import authRouter from "./src/auth/router.js";
+import authRouter from "./src/auth/route.js";
 import teacherRouter from "./src/information/teacher/route.js";
 import sectionRouter from "./src/information/section/route.js";
 import roomRouter from "./src/information/room/route.js";

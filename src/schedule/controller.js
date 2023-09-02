@@ -8,6 +8,7 @@ import {
   nextInSeniority,
 } from "./repository.js";
 import { createForm } from "../assignment/repository.js";
+import { HttpError } from "../config/error-handle.js";
 
 async function sendMail(email, template, token) {
   var url = process.env.URL || "http://localhost:3000";
@@ -35,7 +36,7 @@ export async function setScheduleAPI(req, res, next) {
     const schedule = req.body;
     const ok = await setSchedule(batch, section, course, schedule);
     if (ok) res.status(200).json({ msg: "successfully send", body: schedule });
-    else res.status(400).json({ msg: "error" });
+    else throw new HttpError(400, "Insert Failed");
   } catch (e) {
     next(e);
   }
@@ -58,7 +59,7 @@ export async function sendTheorySchedNextMail(batch) {
   const teachers = await nextInSeniority();
   for (const teacher of teachers.filter((t) => t.batch === batch)) {
     const id = teacher.id;
-    await sendMail(teacher.email, `Theory Schedule Form: ${id}` , id);
+    await sendMail(teacher.email, `Theory Schedule Form: ${id}`, id);
     // console.log(teacher);
   }
 }
@@ -92,11 +93,15 @@ export async function getCurrStatus(req, res, next) {
         acc[row.initial] = row;
         return acc;
       }, {});
-      const mailedResponse = result.filter((row) => row.response === null && mailedObj[row.initial] !== undefined).map((row) => {
-        row.batch = mailedObj[row.initial].batch;
-        row.course_id = mailedObj[row.initial].course_id;
-        return row;
-      });
+      const mailedResponse = result
+        .filter(
+          (row) => row.response === null && mailedObj[row.initial] !== undefined
+        )
+        .map((row) => {
+          row.batch = mailedObj[row.initial].batch;
+          row.course_id = mailedObj[row.initial].course_id;
+          return row;
+        });
       res.status(200).json({
         status: nullResponse.length === 0 ? 2 : 1,
         values: mailedResponse,

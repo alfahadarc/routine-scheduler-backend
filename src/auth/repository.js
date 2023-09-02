@@ -1,15 +1,16 @@
 import { connect } from '../config/database.js'
+import { HttpError } from '../config/error-handle.js';
 
 export async function findAdminDB(username) {
   const query = 'SELECT * FROM admin WHERE username = $1';
   const values = [username]
   const client = await connect()
   const results = await client.query(query, values)
+  client.release();
 
   if (results.rows.length <= 0) {
-    next (new Error("Table is empty"));
+    throw new HttpError(404, "User not found");
   } else {
-    client.release();
     return results.rows[0];
   }
 
@@ -21,11 +22,11 @@ export async function registerAdminDB(username, hash, email) {
 
   const client = await connect()
   const results = await client.query(query, values)
+  client.release();
 
   if (results.rowCount <= 0) {
-    next (new Error("Insertion Failed"));
+    throw new HttpError(400, "Insertion Failed");
   } else {
-    client.release();
     return results.rows;
   }
 
@@ -37,12 +38,11 @@ export async function updateEmailDB(email, username) {
 
   const client = await connect()
   const results = await client.query(query, values)
+  client.release();
 
   if (results.rowCount <= 0) {
-    next (new Error("Update Failed"));
-
+    throw new HttpError(404, "User not found");
   } else {
-    client.release();
     return results.rows;
   }
   

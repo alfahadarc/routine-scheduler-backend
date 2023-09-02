@@ -9,6 +9,7 @@ import {
   isFinalized,
   getTheoryAssignment,
 } from "./repository.js";
+import { HttpError } from "../config/error-handle.js";
 
 async function sendMail(email, template, token) {
   var url = process.env.URL || "http://localhost:3000";
@@ -47,7 +48,7 @@ export async function sendTheoryPrefMail(req, res, next) {
       // })
       res.status(200).json({ msg: "successfully send" });
     } else {
-      next(new Error("No template found"));
+      next(new HttpError(400, "Template not found"));
     }
   } catch (err) {
     next(err);
@@ -85,7 +86,7 @@ export async function finalizeTheoryPreference(req, res, next) {
   try {
     const commited = await finalize();
     if (!commited) {
-      throw new Error("Finalization Failed");
+      throw new HttpError(400, "Finalizing Failed");
     }
     res.status(200).json({ msg: "Finilizing Done" });
   } catch (err) {
