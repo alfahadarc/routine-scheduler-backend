@@ -1,4 +1,4 @@
-import { connect } from '../../config/database.js'
+import { connect } from '../config/database.js'
 
 async function getCourses(type) {
     //theory-pref, theory-sched,sessional-pref

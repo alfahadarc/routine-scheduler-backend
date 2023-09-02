@@ -1,4 +1,4 @@
-import { transporter } from "../../config/mail.js";
+import { transporter } from "../config/mail.js";
 import { v4 as uuidv4 } from "uuid";
 import {
   getTemplate,
@@ -32,7 +32,6 @@ async function sendMail(email, template, token) {
 export async function sendTheoryPrefMail(req, res, next) {
   try {
     const msgBody = await getTemplate("demo");
-    console.log(msgBody);
 
     if (msgBody[0].key !== null && msgBody[0].key !== undefined) {
       //get all mail and initial
@@ -41,7 +40,6 @@ export async function sendTheoryPrefMail(req, res, next) {
         const id = uuidv4();
         const row = await createForm(id, data[i].initial, "theory-pref");
         var info = sendMail(data[i].email, msgBody[0].value, id);
-        console.log(info.messageId);
       }
       // data.forEach((e)=>{
       //   var info = sendMail(e.email,msgBody[0].value,uuidv4() )

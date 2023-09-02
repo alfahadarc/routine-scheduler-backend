@@ -1,15 +1,15 @@
 import express from "express";
 import authRouter from "./src/auth/router.js";
-import teacherRouter from "./information/teacher/route.js";
-import sectionRouter from "./information/section/route.js";
-import roomRouter from "./information/room/route.js";
-import courseRouter from "./information/courses/route.js";
+import teacherRouter from "./src/information/teacher/route.js";
+import sectionRouter from "./src/information/section/route.js";
+import roomRouter from "./src/information/room/route.js";
+import courseRouter from "./src/information/courses/route.js";
 import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
 import scheduleRouter from "./src/schedule/route.js";
 
 
-import { authorize } from "./config/authorize.js";
+import { authorize } from "./src/config/authorize.js";
 
 const router = express.Router();
 

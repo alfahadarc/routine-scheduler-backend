@@ -1,4 +1,4 @@
-import { connect } from "../../config/database.js";
+import { connect } from "../config/database.js";
 
 export async function getTemplate(key) {
   const query = "SELECT * FROM configs WHERE key=$1";

@@ -4,8 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import route from './route.js';
-import { connect } from './config/database.js';
-import errorHandler from './config/error-handle.js';
+import errorHandler from './src/config/error-handle.js';
 
 const app = express();
 const port = process.env.PORT || 8000;

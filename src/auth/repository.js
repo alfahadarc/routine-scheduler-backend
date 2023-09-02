@@ -1,9 +1,8 @@
-import { connect } from '../../config/database.js'
+import { connect } from '../config/database.js'
 
 export async function findAdminDB(username) {
   const query = 'SELECT * FROM admin WHERE username = $1';
   const values = [username]
-
   const client = await connect()
   const results = await client.query(query, values)
 

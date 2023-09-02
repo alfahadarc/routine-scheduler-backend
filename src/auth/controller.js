@@ -9,6 +9,7 @@ const saltRounds = 10;
 export async function authenticate(req, res, next) {
   try {
     const admin = await findAdminUsingUsername(req.body.username);
+    console.log(admin);
     const result = await bcrypt.compare(req.body.password, admin.password);
 
     if (result) {

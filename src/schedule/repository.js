@@ -1,4 +1,4 @@
-import { connect } from "../../config/database.js";
+import { connect } from "../config/database.js";
 
 export async function getSchedule(batch, section) {
   const query = `select course_id, "day" , "time"  from schedule_assignment sa where batch = $1 and "section" = $2 and "session" = (SELECT value FROM configs WHERE key='CURRENT_SESSION')`;

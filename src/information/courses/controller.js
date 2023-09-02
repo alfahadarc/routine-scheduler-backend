@@ -92,7 +92,6 @@ export async function deleteCourse(req, res, next) {
 export async function getLabCourses(req, res, next) {
     try {
         const Courses = await getAllLab();
-        console.log(Courses)
         res.status(200).json(Courses);
     } catch(err) {
         next(err)
