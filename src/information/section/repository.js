@@ -26,7 +26,7 @@ export async function saveSection(sections) {
   const results = await client.query(query, values);
   client.release();
 
-  if (results.rows.length <= 0) {
+  if (results.rowCount <= 0) {
     throw new HttpError(400, "Insert Failed");
   } else {
     return results.rows;
@@ -51,14 +51,15 @@ export async function updateSection(sections) {
     WHERE batch = $1 AND
     section = $2
   `;
-  const values = [batch, section, type, room, session];
+  const values = [batch, section, type, room, session, level_term];
+  console.log(values);
 
   const client = await connect();
   const results = await client.query(query, values);
   client.release();
 
-  if (results.rows.length <= 0) {
-    throw new HttpError(400, "Update Failed");  
+  if (results.rowCount <= 0) {
+    throw new HttpError(400, "Update Failed");
   } else {
     return results.rows;
   }
@@ -76,8 +77,8 @@ export async function removeSection(batch, section) {
   const results = await client.query(query, values);
   client.release();
 
-  if (results.rows.length <= 0) {
-    throw new HttpError(400, "Delete Failed");  
+  if (results.rowCount <= 0) {
+    throw new HttpError(400, "Delete Failed");
   } else {
     return results.rows;
   }
