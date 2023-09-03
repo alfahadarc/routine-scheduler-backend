@@ -101,11 +101,11 @@ export async function getForms() {
 
   const client = await connect();
   const results = await client.query(query);
+  client.release();
 
   if (results.rows.length <= 0) {
     throw new Error("Table is empty");
   } else {
-    client.release();
     return results.rows;
   }
 }
