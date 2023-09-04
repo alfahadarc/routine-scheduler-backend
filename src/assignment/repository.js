@@ -145,3 +145,28 @@ export async function getTheoryAssignment() {
   client.release();
   return result;
 }
+
+export async function getLabRoomAssignmentDB() {
+  const query = `SELECT course_id, "session", batch, "section", room
+  FROM lab_room_assignment;
+  `;
+  const client = await connect();
+  const result = (await client.query(query)).rows;
+  client.release();
+  return result;
+}
+
+export async function setLabRoomAssignemntDB(assignment) {
+  const insertQuery = `INSERT INTO lab_room_assignment (course_id, "session", batch, "section", room)
+  VALUES ($1, (SELECT value FROM configs WHERE key='CURRENT_SESSION'), $2, $3, $4)`;
+
+  const client = await connect();
+  try {
+    assignment.forEach((row) => {
+      const values = [row.course_id, row.batch, row.section, row.room];
+      client.query(insertQuery, values);
+    });
+  } finally {
+    client.release();
+  }
+}

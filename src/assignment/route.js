@@ -6,10 +6,15 @@ import {
   sendTheoryPrefMail,
   getCurrStatus,
   finalizeTheoryPreference,
+  getLabRoomAssignment,
+  setLabRoomAssignemnt,
 } from "./controller.js";
 
 router.get("/theory/initiate", sendTheoryPrefMail);
 router.get("/theory/status", getCurrStatus);
 router.get("/theory/finalize", finalizeTheoryPreference);
+
+router.get("/room/status", getLabRoomAssignment);
+router.post("/room/assign", setLabRoomAssignemnt);
 
 export default router;

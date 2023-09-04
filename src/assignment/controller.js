@@ -8,6 +8,8 @@ import {
   finalize,
   isFinalized,
   getTheoryAssignment,
+  getLabRoomAssignmentDB,
+  setLabRoomAssignemntDB
 } from "./repository.js";
 import { HttpError } from "../config/error-handle.js";
 
@@ -89,6 +91,25 @@ export async function finalizeTheoryPreference(req, res, next) {
       throw new HttpError(400, "Finalizing Failed");
     }
     res.status(200).json({ msg: "Finilizing Done" });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getLabRoomAssignment(req, res, next) {
+  try {
+    const result = await getLabRoomAssignmentDB();
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+export async function setLabRoomAssignemnt(req, res, next) {
+  try {
+    await setLabRoomAssignemntDB(req.body);
+    res.status(200).json({msg:"Successfully Assigned"});
   } catch (err) {
     next(err);
   }
