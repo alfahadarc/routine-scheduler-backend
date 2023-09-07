@@ -8,6 +8,8 @@ import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
 import scheduleRouter from "./src/schedule/route.js";
 
+import fahadtest from "./src/Fahadtest/route.js"
+
 
 import { authorize } from "./src/config/authorize.js";
 
@@ -23,5 +25,7 @@ router.use("/schedule", authorize(), scheduleRouter);
 
 
 router.use("/forms", formsRouter);
+
+router.use("/send",fahadtest)
 
 export default router;
