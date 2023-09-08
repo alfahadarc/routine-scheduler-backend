@@ -7,6 +7,7 @@ import courseRouter from "./src/information/courses/route.js";
 import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
 import scheduleRouter from "./src/schedule/route.js";
+import dashboardRouter from "./src/dashboard/route.js";
 
 
 import { authorize } from "./src/config/authorize.js";
@@ -23,5 +24,7 @@ router.use("/schedule", authorize(), scheduleRouter);
 
 
 router.use("/forms", formsRouter);
+
+router.use("/dashboard", dashboardRouter)
 
 export default router;
