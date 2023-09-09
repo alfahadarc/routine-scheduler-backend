@@ -8,6 +8,7 @@ import formsRouter from "./src/forms/route.js";
 import assignRouter from "./src/assignment/route.js";
 import scheduleRouter from "./src/schedule/route.js";
 import dashboardRouter from "./src/dashboard/route.js";
+import pdfRouter from "./src/pdfgenerator/route.js";
 
 
 import { authorize } from "./src/config/authorize.js";
@@ -26,5 +27,7 @@ router.use("/schedule", authorize(), scheduleRouter);
 router.use("/forms", formsRouter);
 
 router.use("/dashboard", dashboardRouter)
+
+router.use("/pdf", pdfRouter)
 
 export default router;

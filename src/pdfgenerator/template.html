@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Hello world!</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            border: 2px solid #000; /* Add a border */
+        }
+
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Routine For A1</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Day/Time</th>
+                <th>8</th>
+                <th>9</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{#each days}}
+            <tr>
+                <td>{{this.day}}</td>
+                <td>{{this.eight}}</td>
+                <td>{{this.nine}}</td>
+                <td>{{this.ten}}</td>
+                <td>{{this.eleven}}</td>
+                <td>{{this.twelve}}</td>
+                <td>{{this.one}}</td>
+                <td>{{this.two}}</td>
+                <td>{{this.three}}</td>
+                <td>{{this.four}}</td>
+
+            </tr>
+            {{/each}}
+        </tbody>
+</body>
+
+</html>
