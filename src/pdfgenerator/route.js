@@ -1,10 +1,11 @@
 import express from "express";
-import { generatePDF, uploadPDF} from "./controller.js";
+import { generatePDF, uploadPDF,teacherPDF} from "./controller.js";
 
 const router = express.Router();
 
-router.get("/test", generatePDF);
-router.get("/testupload", uploadPDF);
+router.get("/generate/:lvlTerm", generatePDF);
+router.get("/generateTeacher/:initial",teacherPDF)
+router.get("/upload", uploadPDF);
 
 
 export default router;
