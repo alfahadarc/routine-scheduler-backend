@@ -146,6 +146,14 @@ export async function getTheoryAssignment() {
   return result;
 }
 
+export async function getTeacherAssignmentDB() {
+  const query = `SELECT course_id, initial FROM teacher_assignment WHERE "session" = (SELECT value FROM configs WHERE key='CURRENT_SESSION')`;
+  const client = await connect();
+  const result = (await client.query(query)).rows;
+  client.release();
+  return result;
+}
+
 export async function getLabRoomAssignmentDB() {
   const query = `SELECT course_id, "session", batch, "section", room
   FROM lab_room_assignment;

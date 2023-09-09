@@ -120,7 +120,6 @@ export async function updateCourse(Course) {
     if (resultsIns.rowCount <= 0) {
       throw new HttpError(400, "Update Failed");
     } else {
-      client.release();
       return resultsIns.rowCount; // Return the first found admin
     }
   } finally {

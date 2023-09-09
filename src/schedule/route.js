@@ -1,10 +1,23 @@
 import express from "express";
-import { getCurrStatus, getScheduleAPI, initiate, setScheduleAPI} from "./controller.js";
+import {
+  getAllSchedule,
+  getCurrStatus,
+  getSessionalScheduleAPI,
+  getTheoryScheduleAPI,
+  initiate,
+  setSessionalScheduleAPI,
+  setTheoryScheduleAPI,
+} from "./controller.js";
 
 const router = express.Router();
 
-router.get("/theory/:batch/:section", getScheduleAPI);
-router.post("/theory/:batch/:section/:course", setScheduleAPI);
+router.get("/theory/:batch/:section", getTheoryScheduleAPI);
+router.post("/theory/:batch/:section/:course", setTheoryScheduleAPI);
+
+router.get("/sessional/:batch/:section", getSessionalScheduleAPI);
+router.post("/sessional/:batch/:section", setSessionalScheduleAPI);
+
+router.get("/all", getAllSchedule)
 
 router.get("/theory/initiate", initiate);
 router.get("/theory/status", getCurrStatus);

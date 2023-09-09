@@ -1,11 +1,14 @@
 import { transporter } from "../config/mail.js";
 import { v4 as uuidv4 } from "uuid";
 import {
-  getSchedule,
-  setSchedule,
+  getTheorySchedule,
+  setTheorySchedule,
   getTheoryScheduleForms,
   getTheoryScheduleTeachers,
   nextInSeniority,
+  getSessionalSchedule,
+  setSessionalSchedule,
+  getAllScheduleDB,
 } from "./repository.js";
 import { createForm } from "../assignment/repository.js";
 import { HttpError } from "../config/error-handle.js";
@@ -29,12 +32,12 @@ async function sendMail(email, template, token) {
   return info;
 }
 
-export async function setScheduleAPI(req, res, next) {
+export async function setTheoryScheduleAPI(req, res, next) {
   try {
     let { batch, section, course } = req.params;
     batch = parseInt(batch);
     const schedule = req.body;
-    const ok = await setSchedule(batch, section, course, schedule);
+    const ok = await setTheorySchedule(batch, section, course, schedule);
     if (ok) res.status(200).json({ msg: "successfully send", body: schedule });
     else throw new HttpError(400, "Insert Failed");
   } catch (e) {
@@ -42,14 +45,38 @@ export async function setScheduleAPI(req, res, next) {
   }
 }
 
-export async function getScheduleAPI(req, res, next) {
+export async function getTheoryScheduleAPI(req, res, next) {
   try {
     let { batch, section } = req.params;
     batch = parseInt(batch);
 
-    const result = await getSchedule(batch, section);
+    const result = await getTheorySchedule(batch, section);
 
     res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function getSessionalScheduleAPI(req, res, next) {
+  try {
+    let { batch, section } = req.params;
+    batch = parseInt(batch);
+    const result = await getSessionalSchedule(batch, section);
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function setSessionalScheduleAPI(req, res, next) {
+  try {
+    let { batch, section } = req.params;
+    batch = parseInt(batch);
+    const schedule = req.body;
+    const ok = await setSessionalSchedule(batch, section, schedule);
+    if (ok) res.status(200).json({ msg: "successfully send", body: schedule });
+    else throw new HttpError(400, "Insert Failed");
   } catch (e) {
     next(e);
   }
@@ -108,6 +135,15 @@ export async function getCurrStatus(req, res, next) {
         submitted: otherResponse,
       });
     }
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAllSchedule(req, res, next) {
+  try {
+    const result = await getAllScheduleDB();
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
