@@ -5,6 +5,8 @@ import {
   editForm,
   getTheoryScheduleForm,
   saveTheoryScheduleFormAPI,
+  saveSessionalPreferenceFormAPI,
+  getSessionalPreferenceForm,
 } from "./controller.js";
 
 const router = express.Router();
@@ -18,5 +20,8 @@ router.put("/:uuid", editForm);
 
 router.get("/theory-sched/:uuid", getTheoryScheduleForm);
 router.put("/theory-sched/:uuid", saveTheoryScheduleFormAPI);
+
+router.get("/sessional-pref/:uuid", getSessionalPreferenceForm);
+router.put("/sessional-pref/:uuid", saveSessionalPreferenceFormAPI);
 
 export default router;

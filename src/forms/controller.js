@@ -5,6 +5,7 @@ import {
   updateForm,
   getTheoryScheduleFormByUUID,
   saveTheoryScheduleForm,
+  getSessionalPreferenceFormByUUID,
 } from "./repository.js";
 
 export async function getTheoryPreferenceForm(req, res, next) {
@@ -61,6 +62,28 @@ export async function editForm(req, res, next) {
   try {
     const form = await updateForm(uuid, response);
 
+    res.status(200).json({ msg: "Successfully Updated" });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSessionalPreferenceForm(req, res, next) {
+  const uuid = req.params["uuid"];
+
+  try {
+    const form = await getSessionalPreferenceFormByUUID(uuid);
+    res.status(200).json({ data: form });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function saveSessionalPreferenceFormAPI(req, res, next) {
+  try {
+    const uuid = req.params["uuid"];
+    const response = req.body;
+    await updateForm(uuid, JSON.stringify(response), "sessional-pref");
     res.status(200).json({ msg: "Successfully Updated" });
   } catch (err) {
     next(err);

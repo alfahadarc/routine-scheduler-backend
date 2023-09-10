@@ -22,6 +22,15 @@ async function getCourses(type) {
     return results.rows;
   } else if (type == "theory-sched") {
   } else if (type == "sessional-pref") {
+    const query = `SELECT course_id, name
+        FROM courses
+        where type =1 and session = $1
+        `;
+    const values = [current_session];
+    const client = await connect();
+    const results = await client.query(query, values);
+    client.release();
+    return results.rows;
   }
 }
 
@@ -128,5 +137,33 @@ export async function updateForm(uuid, response, type = "theory-pref") {
     throw new HttpError(400, "Insertion Failed");
   } else {
     return results.rowCount;
+  }
+}
+
+export async function getSessionalPreferenceFormByUUID(uuid) {
+  const query = `
+    SELECT type, teachers.initial, teachers.name
+    FROM forms
+    INNER JOIN teachers ON forms.initial = teachers.initial
+    WHERE id=$1 and type='sessional-pref'
+    `;
+
+  const values = [uuid];
+
+  const client = await connect();
+  const results = await client.query(query, values);
+  client.release();
+
+  let courses = await getCourses(results.rows[0].type);
+  courses = courses.filter((course) => course.course_id.startsWith("CSE") && course.course_id !== "CSE400");
+  const data = {
+    teacher: results.rows[0],
+    courses: courses,
+  };
+
+  if (results.rows.length <= 0) {
+    throw new HttpError(404, "Form not found");
+  } else {
+    return data;
   }
 }

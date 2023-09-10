@@ -9,11 +9,18 @@ import {
   getLabRoomAssignment,
   setLabRoomAssignemnt,
   getTeacherAssignment,
+  sendSessionalPrefMail,
+  getSessionalCurrStatus,
+  finalizeSessionalPreference,
 } from "./controller.js";
 
 router.get("/theory/initiate", sendTheoryPrefMail);
 router.get("/theory/status", getCurrStatus);
 router.get("/theory/finalize", finalizeTheoryPreference);
+
+router.get("/sessional/initiate", sendSessionalPrefMail);
+router.get("/sessional/status", getSessionalCurrStatus);
+router.get("/sessional/finalize", finalizeSessionalPreference);
 
 router.get("/theory/all", getTeacherAssignment);
 
