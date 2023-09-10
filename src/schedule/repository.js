@@ -108,3 +108,43 @@ export async function getAllScheduleDB() {
   client.release();
   return results;
 }
+
+export async function roomContradictionDB(batch, section, course_id) {
+  const roomQuery = `
+  select room from lab_room_assignment lra where batch = $1 and "section" = $2 and course_id = $3 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `
+
+  const contradictionQuery = `
+  select * from lab_room_assignment lra natural join schedule_assignment sa where room = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `
+
+  const client = await connect();
+  let results = (await client.query(roomQuery, [batch, section, course_id])).rows;
+  const room = results[0].room;
+  results = (await client.query(contradictionQuery, [room])).rows;
+  client.release();
+  return results;
+}
+
+export async function teacherContradictionDB(batch, section, course_id) {
+  // TODO: Change these query for sessional
+  const teacherQuery = `
+  select initial from teacher_assignment ta where batch = $1 and "section" = $2 and course_id = $3 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `
+
+  const contradictionQuery = `
+  select * from teacher_assignment ta natural join schedule_assignment sa where initial = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `
+
+  const client = await connect();
+  let teachers = (await client.query(teacherQuery, [batch, section, course_id])).rows;
+  const results = [];
+  for (const teacher of teachers) {
+    const initial = teacher.initial;
+    const result = {initial, schedule: []}
+    result.schedule.push((await client.query(contradictionQuery, [initial])).rows);
+    results.push(result);
+  }
+  client.release();
+  return results;
+}

@@ -5,8 +5,10 @@ import {
   getSessionalScheduleAPI,
   getTheoryScheduleAPI,
   initiate,
+  roomContradiction,
   setSessionalScheduleAPI,
   setTheoryScheduleAPI,
+  teacherContradiction,
 } from "./controller.js";
 
 const router = express.Router();
@@ -18,6 +20,8 @@ router.get("/sessional/:batch/:section", getSessionalScheduleAPI);
 router.post("/sessional/:batch/:section", setSessionalScheduleAPI);
 
 router.get("/all", getAllSchedule)
+router.get("/contradiction/room/:batch/:section/:course_id", roomContradiction)
+router.get("/contradiction/teacher/:batch/:section/:course_id", teacherContradiction)
 
 router.get("/theory/initiate", initiate);
 router.get("/theory/status", getCurrStatus);

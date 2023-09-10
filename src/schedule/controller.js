@@ -9,6 +9,8 @@ import {
   getSessionalSchedule,
   setSessionalSchedule,
   getAllScheduleDB,
+  roomContradictionDB,
+  teacherContradictionDB,
 } from "./repository.js";
 import { createForm } from "../assignment/repository.js";
 import { HttpError } from "../config/error-handle.js";
@@ -143,6 +145,26 @@ export async function getCurrStatus(req, res, next) {
 export async function getAllSchedule(req, res, next) {
   try {
     const result = await getAllScheduleDB();
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function roomContradiction(req, res, next) {
+  try {
+    const { batch, section, course_id } = req.params;
+    const result = await roomContradictionDB(batch, section, course_id);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function teacherContradiction(req, res, next) {
+  try {
+    const { batch, section, course_id } = req.params;
+    const result = await teacherContradictionDB(batch, section, course_id);
     res.status(200).json(result);
   } catch (err) {
     next(err);
