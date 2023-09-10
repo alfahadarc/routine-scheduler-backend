@@ -22,11 +22,11 @@ export async function setTheorySchedule(batch, section, course, schedule) {
       await client.query(query, values);
     }
     await client.query("COMMIT");
-    return true
+    return true;
   } catch (e) {
     console.log(e);
     await client.query("ROLLBACK");
-    return false
+    return false;
   } finally {
     client.release();
   }
@@ -54,11 +54,11 @@ export async function setSessionalSchedule(batch, section, schedule) {
       await client.query(query, values);
     }
     await client.query("COMMIT");
-    return true
+    return true;
   } catch (e) {
     console.log(e);
     await client.query("ROLLBACK");
-    return false
+    return false;
   } finally {
     client.release();
   }
@@ -72,16 +72,16 @@ export async function getTheoryScheduleForms() {
     WHERE type = 'theory-sched'
     `;
 
-    const client = await connect();
-    const results = (await client.query(query)).rows;
-    client.release();
-    return results;
+  const client = await connect();
+  const results = (await client.query(query)).rows;
+  client.release();
+  return results;
 }
 
 export async function getTheoryScheduleTeachers() {
   const query = `
   select DISTINCT initial, cs.batch  from teacher_assignment ta join courses_sections cs using (course_id, "session")
-  `
+  `;
   const client = await connect();
   const results = (await client.query(query)).rows;
   client.release();
@@ -92,7 +92,7 @@ export async function nextInSeniority() {
   const query = `
   select distinct on (batch) id, course_id, batch, t.initial, t."name", t.email, t.surname from forms f join teacher_assignment ta using (initial) 
   join courses_sections cs using (course_id) natural join teachers t 
-  where f."type" = 'theory-sched' and response is null order by batch, seniority_rank`
+  where f."type" = 'theory-sched' and response is null order by batch, seniority_rank`;
   const client = await connect();
   const results = (await client.query(query)).rows;
   client.release();
@@ -102,7 +102,7 @@ export async function nextInSeniority() {
 export async function getAllScheduleDB() {
   const query = `
   select * from schedule_assignment sa
-  `
+  `;
   const client = await connect();
   const results = (await client.query(query)).rows;
   client.release();
@@ -112,37 +112,42 @@ export async function getAllScheduleDB() {
 export async function roomContradictionDB(batch, section, course_id) {
   const roomQuery = `
   select room from lab_room_assignment lra where batch = $1 and "section" = $2 and course_id = $3 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
-  `
+  `;
 
   const contradictionQuery = `
   select * from lab_room_assignment lra natural join schedule_assignment sa where room = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
-  `
+  `;
 
   const client = await connect();
-  let results = (await client.query(roomQuery, [batch, section, course_id])).rows;
-  const room = results[0].room;
+  let results = (await client.query(roomQuery, [batch, section, course_id]))
+    .rows;
+  const room = results[0]?.room;
   results = (await client.query(contradictionQuery, [room])).rows;
   client.release();
   return results;
 }
 
 export async function teacherContradictionDB(batch, section, course_id) {
-  // TODO: Change these query for sessional
   const teacherQuery = `
-  select initial from teacher_assignment ta where batch = $1 and "section" = $2 and course_id = $3 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
-  `
+  select initial from teacher_sessional_assignment ta where batch = $1 and "section" = $2 and course_id = $3 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `;
 
   const contradictionQuery = `
-  select * from teacher_assignment ta natural join schedule_assignment sa where initial = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
-  `
+  select ta.initial, sa.* from teacher_assignment ta join courses_sections cs using (course_id, "session") natural join schedule_assignment sa where initial = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  union
+  select ta.initial, sa.* from teacher_sessional_assignment ta join schedule_assignment sa using (course_id, "session", batch, "section") where initial = $1 and session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+  `;
 
   const client = await connect();
-  let teachers = (await client.query(teacherQuery, [batch, section, course_id])).rows;
+  let teachers = (await client.query(teacherQuery, [batch, section, course_id]))
+    .rows;
   const results = [];
   for (const teacher of teachers) {
     const initial = teacher.initial;
-    const result = {initial, schedule: []}
-    result.schedule.push((await client.query(contradictionQuery, [initial])).rows);
+    const result = {
+      initial,
+      schedule: (await client.query(contradictionQuery, [initial])).rows,
+    };
     results.push(result);
   }
   client.release();
