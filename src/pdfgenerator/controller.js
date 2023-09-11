@@ -5,7 +5,7 @@ import { dirname } from 'path';
 import path from 'path';
 import admin from 'firebase-admin';
 import { serviceAccount } from '../../pvtkey.js';
-import { routineForLvl, routineForTeacher ,routineForRoom} from './repository.js';
+import { routineForLvl, routineForTeacher, routineForRoom, getInitials,getRooms } from './repository.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,6 +55,45 @@ function sortedData(datas) { //sort by day
     return sortedDatas;
 }
 
+function generateDataAsSorted(MergedAppointmentsA) {
+    ///modifying for time
+    // Function to create a new array with 5 appointments for each day
+    function generateAppointments(day) {
+        const appointments = [];
+        for (let time = 8; time <= 12; time++) {
+            const existingAppointment = day.appointments.find(app => app.time === time);
+            if (existingAppointment) {
+                appointments.push(existingAppointment);
+            } else {
+                appointments.push({
+                    "time": time,
+                    "initial": null,
+                    "course_id": null,
+                    "section": null,
+                    "level_term": null,
+                    "room": null,
+                });
+            }
+        }
+        return appointments;
+    }
+
+    // Modify the data
+    const modifiedData = MergedAppointmentsA.map(day => {
+        return {
+            day: day.day,
+            appointments: generateAppointments(day)
+        };
+    });
+
+    // Sort the data based on time
+    modifiedData.forEach(day => {
+        day.appointments.sort((a, b) => a.time - b.time);
+    });
+
+    return modifiedData;
+}
+
 function mergedAppointments(sectionAAppointments) { //merge teacher
     const mergedAppointments = [];
 
@@ -98,7 +137,13 @@ function mergedAppointments(sectionAAppointments) { //merge teacher
         return acc;
     }, []);
 
-    return MergedAppointmentsA;
+
+
+
+    const modifiedData = generateDataAsSorted(MergedAppointmentsA);
+
+    // return MergedAppointmentsA;
+    return modifiedData;
 }
 
 async function generateData(rows) {
@@ -239,6 +284,58 @@ async function generateDataTeacher(rows) {
     return teacherAppointments;
 }
 
+function mergedForTeacher(sectionAAppointments) { //merge teacher
+    const mergedAppointments = [];
+
+    sectionAAppointments.forEach(day => {
+        day.appointments.forEach(appointment => {
+            // Find if there's an existing appointment with same attributes (except 'initial')
+            const existingAppointmentIndex = mergedAppointments.findIndex(existing => (
+                existing.day === day.day &&
+                existing.appointments[0].time === appointment.time &&
+                existing.appointments[0].course_id === appointment.course_id &&
+                existing.appointments[0].level_term === appointment.level_term
+            ));
+
+            if (existingAppointmentIndex !== -1) {
+                // Merge 'initial' values
+                mergedAppointments[existingAppointmentIndex].appointments[0].room += `/${appointment.room}`;
+                mergedAppointments[existingAppointmentIndex].appointments[0].section += `/${appointment.section}`;
+            } else {
+                // Create a new appointment
+                mergedAppointments.push({
+                    day: day.day,
+                    appointments: [{
+                        time: appointment.time,
+                        room: appointment.room,
+                        course_id: appointment.course_id,
+                        section: appointment.section,
+                        level_term: appointment.level_term
+                    }]
+                });
+            }
+        });
+    });
+
+    const MergedAppointmentsA = mergedAppointments.reduce((acc, curr) => {
+        const existingDay = acc.find(item => item.day === curr.day);
+        if (existingDay) {
+            existingDay.appointments.push(...curr.appointments);
+        } else {
+            acc.push(curr);
+        }
+        return acc;
+    }, []);
+
+
+
+
+    const modifiedData = generateDataAsSorted(MergedAppointmentsA);
+
+    // return MergedAppointmentsA;
+    return modifiedData;
+}
+
 async function createPDFTeacher(datas, initial) {
     var html = fs.readFileSync(path.resolve(__dirname, 'templateTeacher.html'), 'utf8');
     //create output directory
@@ -273,9 +370,10 @@ export async function teacherPDF(req, res, next) {
             res.status(404).json({ message: "No data found" })
         } else {
             const data = await generateDataTeacher(rows);
-            await createPDFTeacher(data, initial);
+            const mergedData = mergedForTeacher(data);
+            await createPDFTeacher(mergedData, initial);
 
-            res.status(200).json({ message: "PDF generated" })
+            res.status(200).json({ message: mergedData })
         }
 
 
@@ -350,14 +448,14 @@ export async function roomPDF(req, res, next) {
 
     try {
         const rows = await routineForRoom(room);
-        
+
         if (rows.length === 0) {
             res.status(404).json({ message: "No data found" })
         }
-        else { 
+        else {
             const data = await generateDataRoom(rows);
             const mergedData = mergedAppointments(data);
-           await createPDFRoom(mergedData, room);
+            await createPDFRoom(mergedData, room);
             res.status(200).json({ message: mergedData })
         }
 
@@ -413,4 +511,68 @@ export async function uploadPDF(req, res) {
     // uploadFile(filepath, filename)
     const url = await generateSignedUrl(filename)
     res.status(200).json({ url: url })
+}
+
+
+
+export async function serveLvlTermPDF(req, res , next) {
+    const lvlTerm = req.params.lvlTerm;
+    const section = req.params.section;
+    var outputDir = path.resolve(__dirname, lvlTerm + '_' + section + '.pdf');
+
+     fs.access(outputDir, fs.constants.F_OK, (err) => {
+        if (err) {
+            next(err)
+            return;
+        }
+
+        res.status(200).sendFile(outputDir);
+    });
+}
+
+export async function serveTeacherPDF(req, res, next) {
+    const initial = req.params.initial;
+    var outputDir = path.resolve(__dirname, 'routine_' + initial + '.pdf');
+
+     fs.access(outputDir, fs.constants.F_OK, (err) => {
+        if (err) {
+            next(err)
+            return;
+        }
+
+        res.status(200).sendFile(outputDir);
+    });
+}
+
+export async function serveRoomPDF(req, res, next) {
+    const room = req.params.room;
+    var outputDir = path.resolve(__dirname, 'routine_' + room + '.pdf');
+
+    fs.access(outputDir, fs.constants.F_OK, (err) => {
+        if (err) {
+            next(err)
+            return;
+        }
+
+        res.status(200).sendFile(outputDir);
+    });
+}
+
+
+export async function getAllInitial(req, res, next) {
+    try {
+        const result = await getInitials();
+        res.status(200).json({ initials: result })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export async function getAllIRooms(req,res,next){
+    try{
+        const result = await getRooms();
+        res.status(200).json({rooms: result})
+    }catch(err){
+        next(err)
+    }
 }
