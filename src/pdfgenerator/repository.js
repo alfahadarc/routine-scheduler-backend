@@ -131,3 +131,18 @@ export async function getLevelTerms() {
     client.release();
     return results.rows;
 }
+
+export async function getTeacherMail(initial) {
+    const query = `
+    select email
+    from teachers
+    where initial = $1
+    `
+
+    const values = [initial];
+    const client = await connect();
+    const result = await client.query(query, values);
+    client.release();
+
+    return result.rows.length > 0 ? result.rows[0].email : "";
+}

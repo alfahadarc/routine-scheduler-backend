@@ -12,7 +12,10 @@ import {
   getInitials,
   getRooms,
   getLevelTerms,
+  getTeacherMail,
 } from "./repository.js";
+import { async } from "@firebase/util";
+import { transporter } from "../config/mail.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -207,7 +210,6 @@ export async function teacherPDF(req, res, next) {
   }
 }
 
-
 export async function roomPDF(req, res, next) {
   const room = req.params.room;
 
@@ -332,6 +334,28 @@ export async function serveLvlTermPDF(req, res, next) {
   });
 }
 
+async function createTeacherPDF(initial) {
+  const rows = await routineForTeacher(initial);
+  // if (rows.length === 0) {
+  //   // res.status(404).json({ message: "No data found" });
+  // } else {
+  const appointments = await generateData(rows, true);
+  const sections = Object.keys(appointments).sort();
+
+  const pdfData = [];
+  for (const section of sections) {
+    const appointment = appointments[section];
+    pdfData.push({ title: `Teacher: ${initial}`, schedule: appointment });
+  }
+  const filename = await createPDFStd(pdfData, initial);
+
+  console.log(filename);
+  return filename;
+
+  // res.status(200).json({ message: "PDF generated" });
+  // }
+}
+
 export async function serveTeacherPDF(req, res, next) {
   const initial = req.params.initial;
   var outputDir = path.resolve(__dirname, initial + ".pdf");
@@ -344,16 +368,16 @@ export async function serveTeacherPDF(req, res, next) {
       } else {
         const appointments = await generateData(rows, true);
         const sections = Object.keys(appointments).sort();
-  
+
         const pdfData = [];
         for (const section of sections) {
           const appointment = appointments[section];
           pdfData.push({ title: `Teacher: ${initial}`, schedule: appointment });
         }
         const filename = await createPDFStd(pdfData, initial);
-  
+
         console.log(filename);
-  
+
         // res.status(200).json({ message: "PDF generated" });
       }
     } catch (err) {
@@ -373,7 +397,7 @@ export async function serveTeacherPDF(req, res, next) {
 
 export async function serveRoomPDF(req, res, next) {
   const room = req.params.room;
-  var outputDir = path.resolve(__dirname,room + ".pdf");
+  var outputDir = path.resolve(__dirname, room + ".pdf");
 
   if (!fs.existsSync(outputDir)) {
     try {
@@ -382,19 +406,19 @@ export async function serveRoomPDF(req, res, next) {
       //   res.status(404).json({ message: "No data found" });
       //   return;
       // } else {
-        const appointments = await generateData(rows);
-        const sections = Object.keys(appointments).sort();
-  
-        const pdfData = [];
-        for (const section of sections) {
-          const appointment = appointments[section];
-          pdfData.push({ title: `Room: ${room}`, schedule: appointment });
-        }
-        const filename = await createPDFStd(pdfData, room);
-  
-        console.log(filename);
-  
-        // res.status(200).json({ message: "PDF generated" });
+      const appointments = await generateData(rows);
+      const sections = Object.keys(appointments).sort();
+
+      const pdfData = [];
+      for (const section of sections) {
+        const appointment = appointments[section];
+        pdfData.push({ title: `Room: ${room}`, schedule: appointment });
+      }
+      const filename = await createPDFStd(pdfData, room);
+
+      console.log(filename);
+
+      // res.status(200).json({ message: "PDF generated" });
       // }
     } catch (err) {
       next(err);
@@ -429,11 +453,31 @@ export async function getAllIRooms(req, res, next) {
   }
 }
 
-
 export async function getAllLevelTerm(req, res, next) {
   try {
     const result = await getLevelTerms();
     res.status(200).json(result.map((row) => row.level_term).sort());
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function sendMailToTeacher(req, res, next) {
+  try {
+    const { initial } = req.params;
+    const mail = await getTeacherMail(initial);
+    const filename = initial + ".pdf";
+    const routinePath = await createTeacherPDF(initial);
+    await uploadRoutine(routinePath, filename);
+    const url = await generateSignedUrl(filename);
+    await transporter.sendMail({
+      from: "BUET CSE Routine Team",
+      to: mail,
+      subject: "Theory Routine",
+      text: url,
+      html: `<a href='${url}'>Routine</a>`,
+    });
+    res.status(200).json({ url: url });
   } catch (err) {
     next(err);
   }
