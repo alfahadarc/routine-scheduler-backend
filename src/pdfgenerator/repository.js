@@ -29,11 +29,18 @@ export async function routineForLvl(lvlTerm) {
 export async function routineForTeacher(initial) {
 
     const query = `
-    SELECT sa.course_id, sa.session, sa.batch, sa.section, sa.day, sa.time, ta.initial, s.type, s.room, s.level_term
-    FROM schedule_assignment sa
-    JOIN teacher_assignment ta ON sa.course_id = ta.course_id AND sa.session = ta.session
-    JOIN sections s ON sa.section = s.section AND s.batch = sa.batch
-    where ta.initial =$1;
+    select 
+    ass.*,
+    level_term,
+    c.type,
+    coalesce(room, (select lra.room from lab_room_assignment lra where ass.course_id = lra.course_id and ass.session = lra.session and ass.batch = lra.batch and ass.section = lra.section)) room
+    from
+    ( select ta.initial, sa.* from teacher_assignment ta join courses_sections cs using (course_id, "session") right outer join schedule_assignment sa using (course_id, "session", batch, "section") where session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+    union
+    select ta.initial, sa.* from teacher_sessional_assignment ta right outer join schedule_assignment sa using (course_id, "session", batch, "section") where session = (SELECT value FROM configs WHERE key='CURRENT_SESSION') ) ass
+    natural join sections s
+    natural join courses c 
+    where ass.initial = $1
     `
 
     const values = [initial];
@@ -46,11 +53,18 @@ export async function routineForTeacher(initial) {
 export async function routineForRoom(room) {
 
     const query = `
-    SELECT sa.course_id, sa.session, sa.batch, sa.section, sa.day, sa.time, ta.initial, s.type, s.room, s.level_term
-    FROM schedule_assignment sa
-    JOIN teacher_assignment ta ON sa.course_id = ta.course_id AND sa.session = ta.session 
-    JOIN sections s ON sa.section = s.section AND s.batch = sa.batch
-    where s.room =$1;
+    select 
+    ass.*,
+    level_term,
+    c.type,
+    coalesce(room, (select lra.room from lab_room_assignment lra where ass.course_id = lra.course_id and ass.session = lra.session and ass.batch = lra.batch and ass.section = lra.section)) room
+    from
+    ( select ta.initial, sa.* from teacher_assignment ta join courses_sections cs using (course_id, "session") right outer join schedule_assignment sa using (course_id, "session", batch, "section") where session = (SELECT value FROM configs WHERE key='CURRENT_SESSION')
+    union
+    select ta.initial, sa.* from teacher_sessional_assignment ta right outer join schedule_assignment sa using (course_id, "session", batch, "section") where session = (SELECT value FROM configs WHERE key='CURRENT_SESSION') ) ass
+    natural join sections s
+    natural join courses c 
+    where coalesce(room, (select lra.room from lab_room_assignment lra where ass.course_id = lra.course_id and ass.session = lra.session and ass.batch = lra.batch and ass.section = lra.section)) = $1
     `
 
     const values = [room];

@@ -13,7 +13,6 @@ import {
   getRooms,
   getLevelTerms,
 } from "./repository.js";
-import { async } from "@firebase/util";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,106 +64,10 @@ function sortedData(datas) {
   return sortedDatas;
 }
 
-function generateDataAsSorted(MergedAppointmentsA) {
-  ///modifying for time
-  // Function to create a new array with 5 appointments for each day
-  function generateAppointments(day) {
-    const appointments = [];
-    for (let time = 8; time <= 12; time++) {
-      const existingAppointment = day.appointments.find(
-        (app) => app.time === time
-      );
-      if (existingAppointment) {
-        appointments.push(existingAppointment);
-      } else {
-        appointments.push({
-          time: time,
-          initial: null,
-          course_id: null,
-          section: null,
-          level_term: null,
-          room: null,
-        });
-      }
-    }
-    return appointments;
-  }
-
-  // Modify the data
-  const modifiedData = MergedAppointmentsA.map((day) => {
-    return {
-      day: day.day,
-      appointments: generateAppointments(day),
-    };
-  });
-
-  // Sort the data based on time
-  modifiedData.forEach((day) => {
-    day.appointments.sort((a, b) => a.time - b.time);
-  });
-
-  return modifiedData;
-}
-
-function mergedAppointments(sectionAAppointments) {
-  //merge teacher
-  const mergedAppointments = [];
-
-  sectionAAppointments.forEach((day) => {
-    day.appointments.forEach((appointment) => {
-      // Find if there's an existing appointment with same attributes (except 'initial')
-      const existingAppointmentIndex = mergedAppointments.findIndex(
-        (existing) =>
-          existing.day === day.day &&
-          existing.appointments[0].time === appointment.time &&
-          existing.appointments[0].room === appointment.room &&
-          existing.appointments[0].course_id === appointment.course_id &&
-          existing.appointments[0].section === appointment.section
-      );
-
-      if (existingAppointmentIndex !== -1) {
-        // Merge 'initial' values
-        mergedAppointments[
-          existingAppointmentIndex
-        ].appointments[0].initial += `/${appointment.initial}`;
-      } else {
-        // Create a new appointment
-        mergedAppointments.push({
-          day: day.day,
-          appointments: [
-            {
-              time: appointment.time,
-              initial: appointment.initial,
-              room: appointment.room,
-              course_id: appointment.course_id,
-              section: appointment.section,
-            },
-          ],
-        });
-      }
-    });
-  });
-
-  const MergedAppointmentsA = mergedAppointments.reduce((acc, curr) => {
-    const existingDay = acc.find((item) => item.day === curr.day);
-    if (existingDay) {
-      existingDay.appointments.push(...curr.appointments);
-    } else {
-      acc.push(curr);
-    }
-    return acc;
-  }, []);
-
-  const modifiedData = generateDataAsSorted(MergedAppointmentsA);
-
-  // return MergedAppointmentsA;
-  return modifiedData;
-}
-
-async function generateData(rows) {
+async function generateData(rows, mergeSection) {
   const data = rows.reduce((acc, curr) => {
     const { day, time, initial, room, course_id, section, type } = curr;
-    const onlySec = section.substr(0, 1);
+    const onlySec = mergeSection ? "merged" : section.substr(0, 1);
     if (!acc[onlySec])
       acc[onlySec] = {
         Saturday: {},
@@ -199,6 +102,7 @@ async function generateData(rows) {
   const days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"];
   const time = [8, 9, 10, 11, 12, 1, 2, 3, 4];
   for (const section in data) {
+    console.log(section, mergeSection);
     if (!appointments[section]) appointments[section] = [];
     for (let j = 0; j < days.length; j++) {
       const day = days[j];
@@ -276,123 +180,6 @@ export async function generatePDF(req, res, next) {
   }
 }
 
-//////Teacher PDF
-async function generateDataTeacher(rows) {
-  var datas = [];
-  rows.forEach((obj) => {
-    const { day, time, room, course_id, section, level_term } = obj;
-
-    if (!datas[day]) {
-      datas[day] = [];
-    }
-
-    datas[day].push({ time, room, course_id, section, level_term });
-  });
-
-  var sortedDatas = sortedData(datas);
-
-  const teacherAppointments = [];
-
-  for (const day in sortedDatas) {
-    const appointments = datas[day];
-    const value = [];
-
-    for (const appointment of appointments) {
-      value.push(appointment);
-    }
-
-    if (value.length > 0) {
-      teacherAppointments.push({ day, appointments: value });
-    }
-  }
-
-  return teacherAppointments;
-}
-
-function mergedForTeacher(sectionAAppointments) {
-  //merge teacher
-  const mergedAppointments = [];
-
-  sectionAAppointments.forEach((day) => {
-    day.appointments.forEach((appointment) => {
-      // Find if there's an existing appointment with same attributes (except 'initial')
-      const existingAppointmentIndex = mergedAppointments.findIndex(
-        (existing) =>
-          existing.day === day.day &&
-          existing.appointments[0].time === appointment.time &&
-          existing.appointments[0].course_id === appointment.course_id &&
-          existing.appointments[0].level_term === appointment.level_term
-      );
-
-      if (existingAppointmentIndex !== -1) {
-        // Merge 'initial' values
-        mergedAppointments[
-          existingAppointmentIndex
-        ].appointments[0].room += `/${appointment.room}`;
-        mergedAppointments[
-          existingAppointmentIndex
-        ].appointments[0].section += `/${appointment.section}`;
-      } else {
-        // Create a new appointment
-        mergedAppointments.push({
-          day: day.day,
-          appointments: [
-            {
-              time: appointment.time,
-              room: appointment.room,
-              course_id: appointment.course_id,
-              section: appointment.section,
-              level_term: appointment.level_term,
-            },
-          ],
-        });
-      }
-    });
-  });
-
-  const MergedAppointmentsA = mergedAppointments.reduce((acc, curr) => {
-    const existingDay = acc.find((item) => item.day === curr.day);
-    if (existingDay) {
-      existingDay.appointments.push(...curr.appointments);
-    } else {
-      acc.push(curr);
-    }
-    return acc;
-  }, []);
-
-  const modifiedData = generateDataAsSorted(MergedAppointmentsA);
-
-  // return MergedAppointmentsA;
-  return modifiedData;
-}
-
-async function createPDFTeacher(datas, initial) {
-  var html = fs.readFileSync(
-    path.resolve(__dirname, "templateTeacher.html"),
-    "utf8"
-  );
-  //create output directory
-  var outputDir = path.resolve(__dirname, "routine_" + initial + ".pdf");
-
-  var document = {
-    html: html,
-    data: {
-      initial: initial,
-      days: datas,
-    },
-    path: outputDir,
-    type: "",
-  };
-  pdf
-    .create(document, options)
-    .then((stat) => {
-      console.log(stat);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
-
 export async function teacherPDF(req, res, next) {
   const initial = req.params.initial;
 
@@ -401,88 +188,47 @@ export async function teacherPDF(req, res, next) {
     if (rows.length === 0) {
       res.status(404).json({ message: "No data found" });
     } else {
-      const data = await generateDataTeacher(rows);
-      const mergedData = mergedForTeacher(data);
-      await createPDFTeacher(mergedData, initial);
+      const appointments = await generateData(rows, true);
+      const sections = Object.keys(appointments).sort();
 
-      res.status(200).json({ message: mergedData });
+      const pdfData = [];
+      for (const section of sections) {
+        const appointment = appointments[section];
+        pdfData.push({ title: `Teacher: ${initial}`, schedule: appointment });
+      }
+      const filename = await createPDFStd(pdfData, initial);
+
+      console.log(filename);
+
+      res.status(200).json({ message: "PDF generated" });
     }
   } catch (err) {
     next(err);
   }
 }
 
-//////Room PDF
-async function generateDataRoom(rows) {
-  var datas = [];
-  rows.forEach((obj) => {
-    const { day, time, initial, course_id, section, level_term } = obj;
 
-    if (!datas[day]) {
-      datas[day] = [];
-    }
-
-    datas[day].push({ time, initial, course_id, section, level_term });
-  });
-
-  var sortedDatas = sortedData(datas);
-
-  const roomAppointments = [];
-
-  for (const day in sortedDatas) {
-    const appointments = datas[day];
-    const value = [];
-
-    for (const appointment of appointments) {
-      value.push(appointment);
-    }
-
-    if (value.length > 0) {
-      roomAppointments.push({ day, appointments: value });
-    }
-  }
-
-  return roomAppointments;
-}
-async function createPDFRoom(datas, room) {
-  var html = fs.readFileSync(
-    path.resolve(__dirname, "templateRoom.html"),
-    "utf8"
-  );
-  //create output directory
-  var outputDir = path.resolve(__dirname, "routine_" + room + ".pdf");
-
-  var document = {
-    html: html,
-    data: {
-      room: room,
-      days: datas,
-    },
-    path: outputDir,
-    type: "",
-  };
-  pdf
-    .create(document, options)
-    .then((stat) => {
-      console.log(stat);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
 export async function roomPDF(req, res, next) {
   const room = req.params.room;
 
   try {
     const rows = await routineForRoom(room);
-
     if (rows.length === 0) {
       res.status(404).json({ message: "No data found" });
     } else {
-      const data = await generateDataRoom(rows);
-      const mergedData = mergedAppointments(data);
-      await createPDFRoom(mergedData, room);
-      res.status(200).json({ message: mergedData });
+      const appointments = await generateData(rows);
+      const sections = Object.keys(appointments).sort();
+
+      const pdfData = [];
+      for (const section of sections) {
+        const appointment = appointments[section];
+        pdfData.push({ title: `Room: ${room}`, schedule: appointment });
+      }
+      const filename = await createPDFStd(pdfData, room);
+
+      console.log(filename);
+
+      res.status(200).json({ message: "PDF generated" });
     }
   } catch (err) {
     next(err);
@@ -582,13 +328,38 @@ export async function serveLvlTermPDF(req, res, next) {
       return;
     }
 
-    res.status(200).sendFile(outputDir);
+    res.status(200).set("Content-Disposition", "inline").sendFile(outputDir);
   });
 }
 
 export async function serveTeacherPDF(req, res, next) {
   const initial = req.params.initial;
-  var outputDir = path.resolve(__dirname, "routine_" + initial + ".pdf");
+  var outputDir = path.resolve(__dirname, initial + ".pdf");
+
+  if (!fs.existsSync(outputDir)) {
+    try {
+      const rows = await routineForTeacher(initial);
+      if (rows.length === 0) {
+        res.status(404).json({ message: "No data found" });
+      } else {
+        const appointments = await generateData(rows, true);
+        const sections = Object.keys(appointments).sort();
+  
+        const pdfData = [];
+        for (const section of sections) {
+          const appointment = appointments[section];
+          pdfData.push({ title: `Teacher: ${initial}`, schedule: appointment });
+        }
+        const filename = await createPDFStd(pdfData, initial);
+  
+        console.log(filename);
+  
+        // res.status(200).json({ message: "PDF generated" });
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
 
   fs.access(outputDir, fs.constants.F_OK, (err) => {
     if (err) {
@@ -596,13 +367,39 @@ export async function serveTeacherPDF(req, res, next) {
       return;
     }
 
-    res.status(200).sendFile(outputDir);
+    res.status(200).set("Content-Disposition", "inline").sendFile(outputDir);
   });
 }
 
 export async function serveRoomPDF(req, res, next) {
   const room = req.params.room;
-  var outputDir = path.resolve(__dirname, "routine_" + room + ".pdf");
+  var outputDir = path.resolve(__dirname,room + ".pdf");
+
+  if (!fs.existsSync(outputDir)) {
+    try {
+      const rows = await routineForRoom(room);
+      // if (rows.length === 0) {
+      //   res.status(404).json({ message: "No data found" });
+      //   return;
+      // } else {
+        const appointments = await generateData(rows);
+        const sections = Object.keys(appointments).sort();
+  
+        const pdfData = [];
+        for (const section of sections) {
+          const appointment = appointments[section];
+          pdfData.push({ title: `Room: ${room}`, schedule: appointment });
+        }
+        const filename = await createPDFStd(pdfData, room);
+  
+        console.log(filename);
+  
+        // res.status(200).json({ message: "PDF generated" });
+      // }
+    } catch (err) {
+      next(err);
+    }
+  }
 
   fs.access(outputDir, fs.constants.F_OK, (err) => {
     if (err) {
@@ -610,7 +407,7 @@ export async function serveRoomPDF(req, res, next) {
       return;
     }
 
-    res.status(200).sendFile(outputDir);
+    res.status(200).set("Content-Disposition", "inline").sendFile(outputDir);
   });
 }
 
