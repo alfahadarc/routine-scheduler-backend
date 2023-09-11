@@ -1,5 +1,5 @@
 import express from "express";
-import { generatePDF, uploadPDF,teacherPDF,roomPDF,serveLvlTermPDF,getAllInitial,serveTeacherPDF,serveRoomPDF,getAllIRooms} from "./controller.js";
+import { generatePDF, uploadPDF,teacherPDF,roomPDF,serveLvlTermPDF,getAllInitial,serveTeacherPDF,serveRoomPDF,getAllIRooms, getAllLevelTerm} from "./controller.js";
 
 const router = express.Router();
 
@@ -17,6 +17,7 @@ router.get("/showRoom/:room",serveRoomPDF);
 
 router.get("/allInitial", getAllInitial);
 router.get("/allRooms", getAllIRooms);
+router.get("/allLevelTerm", getAllLevelTerm)
 
 
 export default router;

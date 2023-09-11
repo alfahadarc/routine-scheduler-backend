@@ -106,3 +106,14 @@ export async function saveRoutine(type, key, url) {
     client.release();
     return results.rowCount > 0;
 }
+
+export async function getLevelTerms() {
+    const query = `
+    select distinct level_term
+    from sections
+    `
+    const client = await connect();
+    const results = await client.query(query);
+    client.release();
+    return results.rows;
+}

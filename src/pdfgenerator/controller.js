@@ -11,6 +11,7 @@ import {
   routineForRoom,
   getInitials,
   getRooms,
+  getLevelTerms,
 } from "./repository.js";
 import { async } from "@firebase/util";
 
@@ -268,7 +269,7 @@ export async function generatePDF(req, res, next) {
 
       console.log(filename);
 
-      res.status(200).json({ message: "PDF generated", appointments });
+      res.status(200).json({ message: "PDF generated" });
     }
   } catch (err) {
     next(err);
@@ -626,6 +627,16 @@ export async function getAllIRooms(req, res, next) {
   try {
     const result = await getRooms();
     res.status(200).json({ rooms: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+export async function getAllLevelTerm(req, res, next) {
+  try {
+    const result = await getLevelTerms();
+    res.status(200).json(result.map((row) => row.level_term).sort());
   } catch (err) {
     next(err);
   }
